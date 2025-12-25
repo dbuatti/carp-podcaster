@@ -342,6 +342,18 @@ const Index = () => {
   const opacity = Math.max(0, 1 - Math.abs(dragDelta) / 300);
   const scale = Math.max(0.8, 1 - Math.abs(dragDelta) / 500);
 
+  // Subtle color based on swipe direction
+  const getCardColor = () => {
+    if (dragDelta > 50) {
+      // Swiping right (previous) - subtle green tint
+      return `rgba(16, 185, 129, ${Math.min(0.15, dragDelta / 500)})`;
+    } else if (dragDelta < -50) {
+      // Swiping left (next) - subtle red tint
+      return `rgba(239, 68, 68, ${Math.min(0.15, Math.abs(dragDelta) / 500)})`;
+    }
+    return 'transparent';
+  };
+
   return (
     <div 
       className="fixed inset-0 bg-white flex items-center justify-center overflow-hidden touch-none"
@@ -353,14 +365,20 @@ const Index = () => {
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseUp}
     >
-      {/* Background swipe indicators */}
+      {/* Background swipe indicators with subtle color */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute left-8 top-1/2 -translate-y-1/2 text-6xl font-black text-gray-100 opacity-0 transition-opacity duration-200"
-             style={{ opacity: dragDelta > 50 ? Math.min(0.3, dragDelta / 300) : 0 }}>
+        <div className="absolute left-8 top-1/2 -translate-y-1/2 text-6xl font-black opacity-0 transition-opacity duration-200"
+             style={{ 
+               opacity: dragDelta > 50 ? Math.min(0.4, dragDelta / 300) : 0,
+               color: 'rgba(16, 185, 129, 0.8)'
+             }}>
           ←
         </div>
-        <div className="absolute right-8 top-1/2 -translate-y-1/2 text-6xl font-black text-gray-100 opacity-0 transition-opacity duration-200"
-             style={{ opacity: dragDelta < -50 ? Math.min(0.3, Math.abs(dragDelta) / 300) : 0 }}>
+        <div className="absolute right-8 top-1/2 -translate-y-1/2 text-6xl font-black opacity-0 transition-opacity duration-200"
+             style={{ 
+               opacity: dragDelta < -50 ? Math.min(0.4, Math.abs(dragDelta) / 300) : 0,
+               color: 'rgba(239, 68, 68, 0.8)'
+             }}>
           →
         </div>
       </div>
@@ -377,24 +395,30 @@ const Index = () => {
           </p>
         </div>
 
-        {/* Main Card - Tinder Style */}
+        {/* Main Card - Tinder Style with subtle color */}
         <div 
-          className="relative"
+          className="relative rounded-2xl"
           style={{
             transform: `translateX(${dragDelta}px) rotate(${rotation}deg) scale(${scale})`,
             transition: isSwipingOut ? 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)' : (isDragging ? 'none' : 'transform 0.3s ease'),
             opacity: opacity
           }}
         >
+          {/* Subtle color overlay */}
+          <div 
+            className="absolute inset-0 rounded-2xl pointer-events-none transition-colors duration-75"
+            style={{ backgroundColor: getCardColor() }}
+          ></div>
+
           {/* Category */}
-          <div className="text-center mb-4">
+          <div className="text-center mb-4 relative z-10">
             <span className="text-xs font-medium tracking-[0.2em] uppercase text-gray-400">
               {currentPodcast.category}
             </span>
           </div>
 
           {/* Content */}
-          <div className="text-center space-y-4 mb-8">
+          <div className="text-center space-y-4 mb-8 relative z-10 bg-white rounded-2xl p-6">
             <h2 className="text-3xl md:text-4xl font-light leading-tight text-gray-900">
               {currentPodcast.title}
             </h2>
@@ -409,7 +433,7 @@ const Index = () => {
           </div>
 
           {/* Play Button */}
-          <div className="flex justify-center mb-8">
+          <div className="flex justify-center mb-8 relative z-10">
             <button
               onClick={handlePlay}
               className={`
@@ -431,7 +455,7 @@ const Index = () => {
           </div>
 
           {/* Counter */}
-          <div className="text-center text-xs text-gray-400 tracking-[0.2em]">
+          <div className="text-center text-xs text-gray-400 tracking-[0.2em] relative z-10">
             {currentIndex + 1} / {podcasts.length}
           </div>
         </div>
