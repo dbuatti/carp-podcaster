@@ -1,11 +1,11 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight, Play } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Play, Podcast } from 'lucide-react';
 import { toast } from 'sonner';
 
-interface Podcast {
+interface PodcastType {
   id: number;
   title: string;
   description: string;
@@ -18,47 +18,57 @@ interface CategoryStyle {
   bg: string;
   text: string;
   accent: string;
+  accentText: string;
   button: string;
   buttonHover: string;
   glow: string;
+  ring: string;
 }
 
 const categoryStyles: Record<string, CategoryStyle> = {
   "🧘 Voice, Body & Somatics": {
     bg: "from-emerald-50 via-teal-50 to-emerald-100",
     text: "text-emerald-800",
-    accent: "bg-emerald-100 text-emerald-800",
+    accent: "bg-emerald-500",
+    accentText: "text-white",
     button: "bg-emerald-600",
     buttonHover: "bg-emerald-700",
-    glow: "shadow-[0_0_40px_rgba(16,185,129,0.3)]"
+    glow: "shadow-[0_0_50px_rgba(16,185,129,0.4)]",
+    ring: "ring-emerald-500/30"
   },
   "☸️ Consciousness & Meaning-Making": {
     bg: "from-purple-50 via-pink-50 to-purple-100",
     text: "text-purple-800",
-    accent: "bg-purple-100 text-purple-800",
+    accent: "bg-purple-500",
+    accentText: "text-white",
     button: "bg-purple-600",
     buttonHover: "bg-purple-700",
-    glow: "shadow-[0_0_40px_rgba(168,85,247,0.3)]"
+    glow: "shadow-[0_0_50px_rgba(168,85,247,0.4)]",
+    ring: "ring-purple-500/30"
   },
   "🎨 Creative Process & Artistic Identity": {
     bg: "from-orange-50 via-amber-50 to-orange-100",
     text: "text-orange-800",
-    accent: "bg-orange-100 text-orange-800",
+    accent: "bg-orange-500",
+    accentText: "text-white",
     button: "bg-orange-600",
     buttonHover: "bg-orange-700",
-    glow: "shadow-[0_0_40px_rgba(249,115,22,0.3)]"
+    glow: "shadow-[0_0_50px_rgba(249,115,22,0.4)]",
+    ring: "ring-orange-500/30"
   },
   "⚖️ Systems, Ethics & Thinking Clearly": {
     bg: "from-blue-50 via-cyan-50 to-blue-100",
     text: "text-blue-800",
-    accent: "bg-blue-100 text-blue-800",
+    accent: "bg-blue-500",
+    accentText: "text-white",
     button: "bg-blue-600",
     buttonHover: "bg-blue-700",
-    glow: "shadow-[0_0_40px_rgba(59,130,246,0.3)]"
+    glow: "shadow-[0_0_50px_rgba(59,130,246,0.4)]",
+    ring: "ring-blue-500/30"
   }
 };
 
-const podcasts: Podcast[] = [
+const podcasts: PodcastType[] = [
   // Voice, Body & Somatics
   {
     id: 1,
@@ -274,10 +284,13 @@ const podcasts: Podcast[] = [
 
 const Index = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(false);
 
   const handlePlay = () => {
     const podcast = podcasts[currentIndex];
     if (podcast.appleLink) {
+      setIsPlaying(true);
+      setTimeout(() => setIsPlaying(false), 1000);
       window.location.href = podcast.appleLink;
       toast.info('Opening in Apple Podcasts...', {
         duration: 3000,
@@ -297,95 +310,154 @@ const Index = () => {
   const styles = categoryStyles[currentPodcast.category];
 
   return (
-    <div className={`min-h-screen bg-gradient-to-br ${styles.bg} p-4 md:p-8 flex items-center justify-center`}>
-      <div className="max-w-3xl w-full mx-auto space-y-8">
+    <div className={`min-h-screen bg-gradient-to-br ${styles.bg} p-4 md:p-8 lg:p-12 flex items-center justify-center overflow-hidden relative`}>
+      {/* Animated background particles */}
+      <div className="absolute inset-0 opacity-10 pointer-events-none">
+        <div className="absolute top-10 left-10 w-32 h-32 rounded-full bg-white blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-20 right-20 w-40 h-40 rounded-full bg-white blur-3xl animate-pulse" style={{ animationDelay: '0.5s' }}></div>
+      </div>
+
+      <div className="max-w-3xl w-full mx-auto space-y-8 relative z-10">
         
-        {/* Header */}
+        {/* Header with icon */}
         <div className="text-center space-y-3">
-          <h1 className="text-4xl md:text-5xl font-black text-gray-900 tracking-tight drop-shadow-sm">
-            Drive Safe Podcasts
-          </h1>
-          <p className="text-gray-700 text-base md:text-lg font-medium">
-            Long drives made better
+          <div className="flex items-center justify-center gap-3 mb-2">
+            <Podcast className="w-8 h-8 text-gray-800" />
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-gray-900 tracking-tight drop-shadow-lg">
+              Drive Safe
+            </h1>
+          </div>
+          <p className="text-gray-700 text-base md:text-lg font-medium tracking-wide">
+            LONG DRIVES MADE BETTER
           </p>
         </div>
 
-        {/* Category Badge */}
+        {/* Category Badge with icon */}
         <div className="text-center">
-          <span className={`inline-block px-6 py-3 rounded-full text-sm font-bold ${styles.accent} shadow-md`}>
-            {currentPodcast.category}
+          <span className={`inline-flex items-center gap-2 px-6 py-3 rounded-full text-sm font-bold ${styles.accent} ${styles.accentText} shadow-lg transform transition-all hover:scale-105`}>
+            <span className="text-lg">{currentPodcast.category.split(' ')[0]}</span>
+            <span>{currentPodcast.category.substring(2)}</span>
           </span>
         </div>
 
-        {/* Podcast Card */}
-        <div className="bg-white/95 backdrop-blur-sm rounded-3xl shadow-2xl p-8 md:p-10 min-h-[320px] flex flex-col justify-center border border-white/50">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4 leading-tight">
-            {currentPodcast.title}
-          </h2>
-          <p className="text-gray-700 text-xl md:text-2xl mb-4 leading-relaxed font-medium">
-            {currentPodcast.description}
-          </p>
-          {currentPodcast.searchTerms && (
-            <p className="text-gray-500 text-sm italic mt-2">
-              Search: "{currentPodcast.searchTerms}"
+        {/* Podcast Card with premium styling */}
+        <div className="bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl p-8 md:p-10 min-h-[320px] flex flex-col justify-center border border-white/60 relative overflow-hidden">
+          {/* Decorative corner accents */}
+          <div className={`absolute top-0 left-0 w-24 h-24 ${styles.accent} opacity-20 rounded-br-3xl`}></div>
+          <div className={`absolute bottom-0 right-0 w-24 h-24 ${styles.accent} opacity-20 rounded-tl-3xl`}></div>
+          
+          <div className="relative z-10">
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-black text-gray-900 mb-4 leading-tight tracking-tight">
+              {currentPodcast.title}
+            </h2>
+            <p className="text-gray-700 text-xl md:text-2xl mb-4 leading-relaxed font-semibold">
+              {currentPodcast.description}
             </p>
-          )}
-          <div className={`text-sm mt-6 font-semibold ${styles.text} opacity-80`}>
-            {currentIndex + 1} of {podcasts.length}
+            {currentPodcast.searchTerms && (
+              <div className="inline-block px-3 py-1.5 bg-gray-100 rounded-lg text-xs font-medium text-gray-600 mt-2 border border-gray-200">
+                Search: "{currentPodcast.searchTerms}"
+              </div>
+            )}
+            <div className={`text-sm mt-6 font-bold ${styles.text} opacity-75 flex items-center gap-2`}>
+              <span className="inline-block w-2 h-2 rounded-full bg-current animate-pulse"></span>
+              {currentIndex + 1} of {podcasts.length}
+            </div>
           </div>
         </div>
 
-        {/* Circular Play Button */}
+        {/* Circular Play Button with pulse effect */}
         <div className="flex justify-center py-6">
           <button
             onClick={handlePlay}
-            className={`w-36 h-36 rounded-full ${styles.button} hover:${styles.buttonHover} text-white ${styles.glow} transform hover:scale-105 transition-all duration-300 flex items-center justify-center group relative overflow-hidden`}
+            className={`
+              w-40 h-40 rounded-full 
+              ${styles.button} 
+              hover:${styles.buttonHover} 
+              text-white 
+              ${styles.glow}
+              transform transition-all duration-300
+              ${isPlaying ? 'scale-95' : 'hover:scale-105'}
+              flex items-center justify-center
+              relative overflow-hidden
+              ring-4 ${styles.ring}
+              hover:ring-8
+            `}
             aria-label="Play podcast"
           >
-            <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-            <div className="relative flex flex-col items-center gap-2">
-              <Play className="w-14 h-14 fill-current group-hover:scale-110 transition-transform duration-300" />
-              <span className="text-xs font-black uppercase tracking-widest">PLAY</span>
+            <div className="absolute inset-0 bg-white/20 opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
+            <div className="relative flex flex-col items-center gap-3">
+              <Play className="w-16 h-16 fill-current transition-transform duration-300" />
+              <span className="text-sm font-black uppercase tracking-[0.3em]">PLAY</span>
             </div>
           </button>
         </div>
 
-        {/* Navigation Buttons */}
-        <div className="grid grid-cols-2 gap-5">
+        {/* Navigation Buttons with premium styling */}
+        <div className="grid grid-cols-2 gap-6">
           <Button
             onClick={handlePrevious}
             size="lg"
-            className="h-20 text-xl font-black bg-white hover:bg-gray-50 text-gray-800 border-4 border-gray-200 shadow-lg hover:shadow-xl transition-all duration-200"
+            className={`
+              h-24 text-2xl font-black 
+              bg-white hover:bg-gray-50 
+              text-gray-900 
+              border-4 border-gray-200
+              shadow-xl hover:shadow-2xl
+              transition-all duration-200
+              transform hover:-translate-y-1
+              rounded-2xl
+            `}
             aria-label="Previous podcast"
           >
-            <ChevronLeft className="w-10 h-10 mr-2" />
+            <ChevronLeft className="w-12 h-12 mr-2" />
             LEFT
           </Button>
 
           <Button
             onClick={handleNext}
             size="lg"
-            className="h-20 text-xl font-black bg-white hover:bg-gray-50 text-gray-800 border-4 border-gray-200 shadow-lg hover:shadow-xl transition-all duration-200"
+            className={`
+              h-24 text-2xl font-black 
+              bg-white hover:bg-gray-50 
+              text-gray-900 
+              border-4 border-gray-200
+              shadow-xl hover:shadow-2xl
+              transition-all duration-200
+              transform hover:-translate-y-1
+              rounded-2xl
+            `}
             aria-label="Next podcast"
           >
             RIGHT
-            <ChevronRight className="w-10 h-10 ml-2" />
+            <ChevronRight className="w-12 h-12 ml-2" />
           </Button>
         </div>
 
-        {/* Quick Tips */}
-        <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-5 text-sm text-gray-800 border border-white/60 shadow-lg">
-          <p className="font-bold mb-2 text-gray-900 text-base">💡 Quick Tips:</p>
-          <ul className="list-disc list-inside space-y-1.5 text-xs md:text-sm font-medium">
-            <li>Press the big circle to open in Apple Podcasts</li>
-            <li>Use LEFT/RIGHT buttons to browse while parked</li>
-            <li>Colors match podcast categories for easy scanning</li>
+        {/* Premium tips card */}
+        <div className="bg-white/90 backdrop-blur-lg rounded-2xl p-6 text-sm text-gray-800 border border-white/70 shadow-2xl">
+          <div className="flex items-center gap-3 mb-3">
+            <span className="text-2xl">💡</span>
+            <span className="font-bold text-gray-900 text-lg">Quick Tips</span>
+          </div>
+          <ul className="list-none space-y-2 text-gray-700 font-medium">
+            <li className="flex items-start gap-2">
+              <span className="text-gray-400">•</span>
+              <span>Press the big circle to open in Apple Podcasts</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-gray-400">•</span>
+              <span>Use LEFT/RIGHT buttons to browse while parked</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-gray-400">•</span>
+              <span>Colors match categories for easy scanning</span>
+            </li>
           </ul>
         </div>
 
-        {/* Counter */}
-        <div className="text-center text-gray-600 text-xs font-semibold opacity-60">
-          {podcasts.length} podcasts available
+        {/* Footer counter */}
+        <div className="text-center text-gray-700 text-xs font-bold tracking-widest opacity-60 uppercase">
+          {podcasts.length} • Podcasts • Available
         </div>
       </div>
     </div>
