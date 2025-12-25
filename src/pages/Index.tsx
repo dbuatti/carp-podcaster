@@ -1,8 +1,7 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { Play, Podcast } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Play } from 'lucide-react';
 
 interface PodcastType {
   id: number;
@@ -234,6 +233,14 @@ const Index = () => {
   const [dragDelta, setDragDelta] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
 
+  // Disable scroll on mount
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = 'auto';
+    };
+  }, []);
+
   const handlePlay = () => {
     const podcast = podcasts[currentIndex];
     if (podcast.appleLink) {
@@ -310,7 +317,7 @@ const Index = () => {
 
   return (
     <div 
-      className="min-h-screen bg-white flex items-center justify-center overflow-hidden"
+      className="fixed inset-0 bg-white flex items-center justify-center overflow-hidden touch-none"
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
