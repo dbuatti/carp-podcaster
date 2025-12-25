@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight, Play, Podcast } from 'lucide-react';
 import { toast } from 'sonner';
@@ -33,8 +33,8 @@ const categoryStyles: Record<string, CategoryStyle> = {
     accentText: "text-white",
     button: "bg-emerald-600",
     buttonHover: "bg-emerald-700",
-    glow: "shadow-[0_0_50px_rgba(16,185,129,0.4)]",
-    ring: "ring-emerald-500/30"
+    glow: "shadow-[0_0_60px_rgba(16,185,129,0.5)]",
+    ring: "ring-emerald-500/40"
   },
   "☸️ Consciousness & Meaning-Making": {
     bg: "from-purple-50 via-pink-50 to-purple-100",
@@ -43,8 +43,8 @@ const categoryStyles: Record<string, CategoryStyle> = {
     accentText: "text-white",
     button: "bg-purple-600",
     buttonHover: "bg-purple-700",
-    glow: "shadow-[0_0_50px_rgba(168,85,247,0.4)]",
-    ring: "ring-purple-500/30"
+    glow: "shadow-[0_0_60px_rgba(168,85,247,0.5)]",
+    ring: "ring-purple-500/40"
   },
   "🎨 Creative Process & Artistic Identity": {
     bg: "from-orange-50 via-amber-50 to-orange-100",
@@ -53,8 +53,8 @@ const categoryStyles: Record<string, CategoryStyle> = {
     accentText: "text-white",
     button: "bg-orange-600",
     buttonHover: "bg-orange-700",
-    glow: "shadow-[0_0_50px_rgba(249,115,22,0.4)]",
-    ring: "ring-orange-500/30"
+    glow: "shadow-[0_0_60px_rgba(249,115,22,0.5)]",
+    ring: "ring-orange-500/40"
   },
   "⚖️ Systems, Ethics & Thinking Clearly": {
     bg: "from-blue-50 via-cyan-50 to-blue-100",
@@ -63,8 +63,8 @@ const categoryStyles: Record<string, CategoryStyle> = {
     accentText: "text-white",
     button: "bg-blue-600",
     buttonHover: "bg-blue-700",
-    glow: "shadow-[0_0_50px_rgba(59,130,246,0.4)]",
-    ring: "ring-blue-500/30"
+    glow: "shadow-[0_0_60px_rgba(59,130,246,0.5)]",
+    ring: "ring-blue-500/40"
   }
 };
 
@@ -310,106 +310,91 @@ const Index = () => {
   const styles = categoryStyles[currentPodcast.category];
 
   return (
-    <div className={`min-h-screen bg-gradient-to-br ${styles.bg} p-4 md:p-8 lg:p-12 flex items-center justify-center overflow-hidden relative`}>
-      {/* Animated background particles */}
-      <div className="absolute inset-0 opacity-10 pointer-events-none">
-        <div className="absolute top-10 left-10 w-32 h-32 rounded-full bg-white blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-20 right-20 w-40 h-40 rounded-full bg-white blur-3xl animate-pulse" style={{ animationDelay: '0.5s' }}></div>
-      </div>
-
-      <div className="max-w-3xl w-full mx-auto space-y-8 relative z-10">
+    <div className={`min-h-screen bg-gradient-to-br ${styles.bg} p-3 md:p-6 flex items-center justify-center overflow-hidden`}>
+      <div className="max-w-2xl w-full mx-auto space-y-4 md:space-y-6">
         
-        {/* Header with icon */}
-        <div className="text-center space-y-3">
-          <div className="flex items-center justify-center gap-3 mb-2">
-            <Podcast className="w-8 h-8 text-gray-800" />
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-gray-900 tracking-tight drop-shadow-lg">
-              Drive Safe
-            </h1>
-          </div>
-          <p className="text-gray-700 text-base md:text-lg font-medium tracking-wide">
+        {/* Header - Compact */}
+        <div className="text-center space-y-1">
+          <h1 className="text-2xl md:text-3xl font-black text-gray-900 tracking-tight">
+            Drive Safe
+          </h1>
+          <p className="text-gray-700 text-xs md:text-sm font-medium">
             LONG DRIVES MADE BETTER
           </p>
         </div>
 
-        {/* Category Badge with icon */}
+        {/* Category Badge - Compact */}
         <div className="text-center">
-          <span className={`inline-flex items-center gap-2 px-6 py-3 rounded-full text-sm font-bold ${styles.accent} ${styles.accentText} shadow-lg transform transition-all hover:scale-105`}>
-            <span className="text-lg">{currentPodcast.category.split(' ')[0]}</span>
-            <span>{currentPodcast.category.substring(2)}</span>
+          <span className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold ${styles.accent} ${styles.accentText}`}>
+            <span>{currentPodcast.category}</span>
           </span>
         </div>
 
-        {/* Podcast Card with premium styling */}
-        <div className="bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl p-8 md:p-10 min-h-[320px] flex flex-col justify-center border border-white/60 relative overflow-hidden">
-          {/* Decorative corner accents */}
-          <div className={`absolute top-0 left-0 w-24 h-24 ${styles.accent} opacity-20 rounded-br-3xl`}></div>
-          <div className={`absolute bottom-0 right-0 w-24 h-24 ${styles.accent} opacity-20 rounded-tl-3xl`}></div>
-          
-          <div className="relative z-10">
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-black text-gray-900 mb-4 leading-tight tracking-tight">
-              {currentPodcast.title}
-            </h2>
-            <p className="text-gray-700 text-xl md:text-2xl mb-4 leading-relaxed font-semibold">
-              {currentPodcast.description}
-            </p>
-            {currentPodcast.searchTerms && (
-              <div className="inline-block px-3 py-1.5 bg-gray-100 rounded-lg text-xs font-medium text-gray-600 mt-2 border border-gray-200">
-                Search: "{currentPodcast.searchTerms}"
-              </div>
-            )}
-            <div className={`text-sm mt-6 font-bold ${styles.text} opacity-75 flex items-center gap-2`}>
-              <span className="inline-block w-2 h-2 rounded-full bg-current animate-pulse"></span>
-              {currentIndex + 1} of {podcasts.length}
+        {/* Podcast Card - Compact but readable */}
+        <div className="bg-white/95 backdrop-blur-xl rounded-2xl shadow-xl p-5 md:p-6 min-h-[200px] flex flex-col justify-center border border-white/60">
+          <h2 className="text-xl md:text-2xl font-black text-gray-900 mb-2 leading-tight">
+            {currentPodcast.title}
+          </h2>
+          <p className="text-gray-700 text-base md:text-lg font-semibold leading-relaxed">
+            {currentPodcast.description}
+          </p>
+          {currentPodcast.searchTerms && (
+            <div className="inline-block px-2 py-1 bg-gray-100 rounded text-[10px] font-medium text-gray-600 mt-2 border border-gray-200">
+              Search: "{currentPodcast.searchTerms}"
             </div>
+          )}
+          <div className={`text-[10px] mt-3 font-bold ${styles.text} opacity-70`}>
+            {currentIndex + 1} / {podcasts.length}
           </div>
         </div>
 
-        {/* Circular Play Button with pulse effect */}
-        <div className="flex justify-center py-6">
+        {/* MASSIVE PLAY BUTTON - Takes up most screen space */}
+        <div className="flex justify-center py-2">
           <button
             onClick={handlePlay}
             className={`
-              w-40 h-40 rounded-full 
+              w-48 h-48 md:w-56 md:h-56 rounded-full 
               ${styles.button} 
               hover:${styles.buttonHover} 
               text-white 
               ${styles.glow}
-              transform transition-all duration-300
-              ${isPlaying ? 'scale-95' : 'hover:scale-105'}
+              transform transition-all duration-200
+              ${isPlaying ? 'scale-95' : 'active:scale-95'}
               flex items-center justify-center
               relative overflow-hidden
-              ring-4 ${styles.ring}
-              hover:ring-8
+              ring-6 ${styles.ring}
+              active:ring-8
+              touch-manipulation
             `}
             aria-label="Play podcast"
           >
-            <div className="absolute inset-0 bg-white/20 opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
-            <div className="relative flex flex-col items-center gap-3">
-              <Play className="w-16 h-16 fill-current transition-transform duration-300" />
-              <span className="text-sm font-black uppercase tracking-[0.3em]">PLAY</span>
+            <div className="absolute inset-0 bg-white/20 active:bg-white/30 transition-opacity"></div>
+            <div className="relative flex flex-col items-center gap-3 md:gap-4">
+              <Play className="w-20 h-20 md:w-24 md:h-24 fill-current" />
+              <span className="text-sm md:text-base font-black uppercase tracking-[0.4em]">PLAY</span>
             </div>
           </button>
         </div>
 
-        {/* Navigation Buttons with premium styling */}
-        <div className="grid grid-cols-2 gap-6">
+        {/* Navigation Buttons - HUGE touch targets */}
+        <div className="grid grid-cols-2 gap-3 md:gap-4">
           <Button
             onClick={handlePrevious}
             size="lg"
             className={`
-              h-24 text-2xl font-black 
+              h-28 md:h-32 text-xl md:text-2xl font-black 
               bg-white hover:bg-gray-50 
               text-gray-900 
               border-4 border-gray-200
-              shadow-xl hover:shadow-2xl
-              transition-all duration-200
-              transform hover:-translate-y-1
-              rounded-2xl
+              shadow-lg hover:shadow-xl
+              transition-all duration-150
+              active:scale-95
+              rounded-xl
+              touch-manipulation
             `}
             aria-label="Previous podcast"
           >
-            <ChevronLeft className="w-12 h-12 mr-2" />
+            <ChevronLeft className="w-10 h-10 md:w-12 md:h-12 mr-2" />
             LEFT
           </Button>
 
@@ -417,47 +402,30 @@ const Index = () => {
             onClick={handleNext}
             size="lg"
             className={`
-              h-24 text-2xl font-black 
+              h-28 md:h-32 text-xl md:text-2xl font-black 
               bg-white hover:bg-gray-50 
               text-gray-900 
               border-4 border-gray-200
-              shadow-xl hover:shadow-2xl
-              transition-all duration-200
-              transform hover:-translate-y-1
-              rounded-2xl
+              shadow-lg hover:shadow-xl
+              transition-all duration-150
+              active:scale-95
+              rounded-xl
+              touch-manipulation
             `}
             aria-label="Next podcast"
           >
             RIGHT
-            <ChevronRight className="w-12 h-12 ml-2" />
+            <ChevronRight className="w-10 h-10 md:w-12 md:h-12 ml-2" />
           </Button>
         </div>
 
-        {/* Premium tips card */}
-        <div className="bg-white/90 backdrop-blur-lg rounded-2xl p-6 text-sm text-gray-800 border border-white/70 shadow-2xl">
-          <div className="flex items-center gap-3 mb-3">
-            <span className="text-2xl">💡</span>
-            <span className="font-bold text-gray-900 text-lg">Quick Tips</span>
-          </div>
-          <ul className="list-none space-y-2 text-gray-700 font-medium">
-            <li className="flex items-start gap-2">
-              <span className="text-gray-400">•</span>
-              <span>Press the big circle to open in Apple Podcasts</span>
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="text-gray-400">•</span>
-              <span>Use LEFT/RIGHT buttons to browse while parked</span>
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="text-gray-400">•</span>
-              <span>Colors match categories for easy scanning</span>
-            </li>
+        {/* Minimal tips */}
+        <div className="bg-white/90 backdrop-blur rounded-lg p-3 text-xs text-gray-800 border border-white/70">
+          <p className="font-bold mb-1">💡 Tips:</p>
+          <ul className="list-disc list-inside space-y-0.5 opacity-80">
+            <li>Press big circle to open podcast</li>
+            <li>Use LEFT/RIGHT while parked</li>
           </ul>
-        </div>
-
-        {/* Footer counter */}
-        <div className="text-center text-gray-700 text-xs font-bold tracking-widest opacity-60 uppercase">
-          {podcasts.length} • Podcasts • Available
         </div>
       </div>
     </div>
