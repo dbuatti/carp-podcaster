@@ -232,6 +232,8 @@ const Index = () => {
   const [dragStartX, setDragStartX] = useState<number | null>(null);
   const [dragDelta, setDragDelta] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
+  const [isSwipingOut, setIsSwipingOut] = useState(false);
+  const [swipeDirection, setSwipeDirection] = useState<'left' | 'right' | null>(null);
 
   // Disable scroll on mount
   useEffect(() => {
@@ -250,70 +252,95 @@ const Index = () => {
     }
   };
 
+  const swipeOffScreen = (direction: 'left' | 'right') => {
+    setIsSwipingOut(true);
+    setSwipeDirection(direction);
+    
+    // Card flies off screen
+    const offScreenX = direction === 'right' ? window.innerWidth : -window.innerWidth;
+    setDragDelta(offScreenX);
+    
+    // After animation, move to next
+    setTimeout(() => {
+      if (direction === 'right') {
+        setCurrentIndex((prev) => (prev === podcasts.length - 1 ? 0 : prev + 1));
+      } else {
+        setCurrentIndex((prev) => (prev === 0 ? podcasts.length - 1 : prev - 1));
+      }
+      // Reset
+      setDragDelta(0);
+      setIsSwipingOut(false);
+      setSwipeDirection(null);
+    }, 300);
+  };
+
   const handleNext = () => {
-    setCurrentIndex((prev) => (prev === podcasts.length - 1 ? 0 : prev + 1));
+    swipeOffScreen('left');
   };
 
   const handlePrevious = () => {
-    setCurrentIndex((prev) => (prev === 0 ? podcasts.length - 1 : prev - 1));
+    swipeOffScreen('right');
   };
 
   // Touch/Swipe handlers
   const handleTouchStart = (e: React.TouchEvent) => {
+    if (isSwipingOut) return;
     setDragStartX(e.touches[0].clientX);
     setIsDragging(true);
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
-    if (!isDragging || dragStartX === null) return;
+    if (!isDragging || dragStartX === null || isSwipingOut) return;
     const currentX = e.touches[0].clientX;
     setDragDelta(currentX - dragStartX);
   };
 
   const handleTouchEnd = () => {
-    if (!isDragging || dragStartX === null) return;
+    if (!isDragging || dragStartX === null || isSwipingOut) return;
     
-    if (Math.abs(dragDelta) > 50) {
-      if (dragDelta > 0) {
-        handlePrevious();
-      } else {
-        handleNext();
-      }
+    if (Math.abs(dragDelta) > 100) {
+      // Trigger swipe off screen
+      swipeOffScreen(dragDelta > 0 ? 'right' : 'left');
+    } else {
+      // Snap back
+      setDragDelta(0);
     }
     
-    setDragDelta(0);
     setDragStartX(null);
     setIsDragging(false);
   };
 
   // Mouse handlers for desktop
   const handleMouseDown = (e: React.MouseEvent) => {
+    if (isSwipingOut) return;
     setDragStartX(e.clientX);
     setIsDragging(true);
   };
 
   const handleMouseMove = (e: React.MouseEvent) => {
-    if (!isDragging || dragStartX === null) return;
+    if (!isDragging || dragStartX === null || isSwipingOut) return;
     setDragDelta(e.clientX - dragStartX);
   };
 
   const handleMouseUp = () => {
-    if (!isDragging || dragStartX === null) return;
+    if (!isDragging || dragStartX === null || isSwipingOut) return;
     
-    if (Math.abs(dragDelta) > 50) {
-      if (dragDelta > 0) {
-        handlePrevious();
-      } else {
-        handleNext();
-      }
+    if (Math.abs(dragDelta) > 100) {
+      swipeOffScreen(dragDelta > 0 ? 'right' : 'left');
+    } else {
+      setDragDelta(0);
     }
     
-    setDragDelta(0);
     setDragStartX(null);
     setIsDragging(false);
   };
 
   const currentPodcast = podcasts[currentIndex];
+
+  // Calculate rotation and opacity based on drag
+  const rotation = dragDelta * 0.05;
+  const opacity = Math.max(0, 1 - Math.abs(dragDelta) / 300);
+  const scale = Math.max(0.8, 1 - Math.abs(dragDelta) / 500);
 
   return (
     <div 
@@ -326,9 +353,21 @@ const Index = () => {
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseUp}
     >
-      <div className="max-w-2xl w-full mx-auto px-4">
+      {/* Background swipe indicators */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute left-8 top-1/2 -translate-y-1/2 text-6xl font-black text-gray-100 opacity-0 transition-opacity duration-200"
+             style={{ opacity: dragDelta > 50 ? Math.min(0.3, dragDelta / 300) : 0 }}>
+          ←
+        </div>
+        <div className="absolute right-8 top-1/2 -translate-y-1/2 text-6xl font-black text-gray-100 opacity-0 transition-opacity duration-200"
+             style={{ opacity: dragDelta < -50 ? Math.min(0.3, Math.abs(dragDelta) / 300) : 0 }}>
+          →
+        </div>
+      </div>
+
+      <div className="max-w-2xl w-full mx-auto px-4 relative z-10">
         
-        {/* Header - Minimal */}
+        {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-2xl font-light tracking-[0.5em] uppercase text-gray-900">
             Drive Safe
@@ -338,13 +377,13 @@ const Index = () => {
           </p>
         </div>
 
-        {/* Main Card - Swipeable */}
+        {/* Main Card - Tinder Style */}
         <div 
           className="relative"
           style={{
-            transform: `translateX(${dragDelta}px)`,
-            transition: isDragging ? 'none' : 'transform 0.3s ease',
-            opacity: Math.max(0.3, 1 - Math.abs(dragDelta) / 300)
+            transform: `translateX(${dragDelta}px) rotate(${rotation}deg) scale(${scale})`,
+            transition: isSwipingOut ? 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)' : (isDragging ? 'none' : 'transform 0.3s ease'),
+            opacity: opacity
           }}
         >
           {/* Category */}
@@ -369,7 +408,7 @@ const Index = () => {
             )}
           </div>
 
-          {/* Play Button - Massive */}
+          {/* Play Button */}
           <div className="flex justify-center mb-8">
             <button
               onClick={handlePlay}
