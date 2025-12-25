@@ -72,7 +72,7 @@ const podcasts: PodcastType[] = [
     category: "🧘 Voice, Body & Somatics",
     appleLink: "https://podcasts.apple.com/us/podcast/the-art-of-receiving-and-giving-the-wheel/id1286485146?i=1000731393085"
   },
-  
+
   // Consciousness & Meaning-Making
   {
     id: 9,
@@ -233,10 +233,8 @@ const Index = () => {
   const [dragDelta, setDragDelta] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [isSwipingOut, setIsSwipingOut] = useState(false);
-  const [swipeDirection, setSwipeDirection] = useState<'left' | 'right' | null>(null);
-  const [showNewCard, setShowNewCard] = useState(false);
 
-  // Load position from localStorage on mount
+  // Load current index from localStorage
   useEffect(() => {
     const savedIndex = localStorage.getItem('driveSafePodcastIndex');
     if (savedIndex !== null) {
@@ -248,7 +246,7 @@ const Index = () => {
     };
   }, []);
 
-  // Save position to localStorage whenever it changes
+  // Save current index whenever it changes (this tracks "ticked" progress)
   useEffect(() => {
     localStorage.setItem('driveSafePodcastIndex', currentIndex.toString());
   }, [currentIndex]);
@@ -263,50 +261,37 @@ const Index = () => {
   };
 
   const handleReset = () => {
-    if (confirm('Reset your progress? This will start you at podcast #1.')) {
+    if (confirm('Reset your ticked progress? This will clear your history and start fresh from the first podcast.')) {
       localStorage.removeItem('driveSafePodcastIndex');
       setCurrentIndex(0);
-      // Trigger zoom animation for reset
-      setShowNewCard(true);
-      setTimeout(() => setShowNewCard(false), 300);
     }
   };
 
   const swipeOffScreen = (direction: 'left' | 'right') => {
     setIsSwipingOut(true);
-    setSwipeDirection(direction);
-    
-    // Card flies off screen
+
     const offScreenX = direction === 'right' ? window.innerWidth : -window.innerWidth;
     setDragDelta(offScreenX);
-    
-    // After animation, move to next and trigger zoom
+
     setTimeout(() => {
       if (direction === 'left') {
-        // Swipe LEFT = forward through numbering
+        // Swipe left = NEXT (forward)
         setCurrentIndex((prev) => (prev === podcasts.length - 1 ? 0 : prev + 1));
       } else {
-        // Swipe RIGHT = backward through numbering
+        // Swipe right = PREVIOUS (back)
         setCurrentIndex((prev) => (prev === 0 ? podcasts.length - 1 : prev - 1));
       }
-      // Reset
+
+      // Reset drag state
       setDragDelta(0);
       setIsSwipingOut(false);
-      setSwipeDirection(null);
-      // Trigger zoom for new card
-      setShowNewCard(true);
     }, 300);
   };
 
-  const handleNext = () => {
-    swipeOffScreen('left');
-  };
+  const handleNext = () => swipeOffScreen('left');
+  const handlePrevious = () => swipeOffScreen('right');
 
-  const handlePrevious = () => {
-    swipeOffScreen('right');
-  };
-
-  // Touch/Swipe handlers
+  // Touch handlers
   const handleTouchStart = (e: React.TouchEvent) => {
     if (isSwipingOut) return;
     setDragStartX(e.touches[0].clientX);
@@ -315,31 +300,23 @@ const Index = () => {
 
   const handleTouchMove = (e: React.TouchEvent) => {
     if (!isDragging || dragStartX === null || isSwipingOut) return;
-    const currentX = e.touches[0].clientX;
-    setDragDelta(currentX - dragStartX);
+    setDragDelta(e.touches[0].clientX - dragStartX);
   };
 
   const handleTouchEnd = () => {
-    if (!isDragging || dragStartX === null || isSwipingOut) return;
-    
+    if (!isDragging || dragStartX === null) return;
+
     if (Math.abs(dragDelta) > 100) {
-      // Swipe LEFT = forward (next) = GREEN
-      // Swipe RIGHT = back (previous) = RED
-      if (dragDelta < 0) {
-        handleNext();
-      } else {
-        handlePrevious();
-      }
+      dragDelta < 0 ? handleNext() : handlePrevious();
     } else {
-      // Snap back
       setDragDelta(0);
     }
-    
+
     setDragStartX(null);
     setIsDragging(false);
   };
 
-  // Mouse handlers for desktop
+  // Mouse handlers
   const handleMouseDown = (e: React.MouseEvent) => {
     if (isSwipingOut) return;
     setDragStartX(e.clientX);
@@ -352,60 +329,42 @@ const Index = () => {
   };
 
   const handleMouseUp = () => {
-    if (!isDragging || dragStartX === null || isSwipingOut) return;
-    
-    if (Math.abs(dragDelta) > 100) {
-      // Swipe LEFT = forward (next) = GREEN
-      // Swipe RIGHT = back (previous) = RED
-      if (dragDelta < 0) {
-        handleNext();
-      } else {
-        handlePrevious();
-      }
-    } else {
-      setDragDelta(0);
-    }
-    
-    setDragStartX(null);
-    setIsDragging(false);
+    handleTouchEnd(); // Reuse logic
   };
 
   const currentPodcast = podcasts[currentIndex];
 
-  // Calculate rotation based on drag
+  // Visual calculations
   const rotation = dragDelta * 0.05;
-  const scale = Math.max(0.8, 1 - Math.abs(dragDelta) / 500);
+  const scale = Math.max(0.85, 1 - Math.abs(dragDelta) / 600);
 
-  // Border color: GREEN for next (left swipe), RED for back (right swipe)
-  const getBorderColor = () => {
-    if (dragDelta > 50) {
-      // Swiping right = BACK = RED
-      return 'rgba(239, 68, 68, 0.8)';
-    } else if (dragDelta < -50) {
-      // Swiping left = NEXT = GREEN
-      return 'rgba(16, 185, 129, 0.8)';
-    }
-    return 'rgba(0, 0, 0, 0.1)';
-  };
+  const getCardStyle = () => {
+    const baseTransform = `translateX(${dragDelta}px) rotate(${rotation}deg) scale(${scale})`;
 
-  // For zoom animation - card starts small and grows
-  const getZoomStyle = () => {
-    if (showNewCard) {
-      return {
-        transform: 'scale(0)',
-        transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-        opacity: 1
-      };
+    if (isDragging) {
+      return { transform: baseTransform, transition: 'none' };
     }
+
+    if (isSwipingOut) {
+      return { transform: baseTransform, transition: 'transform 0.3s ease-out', opacity: 0 };
+    }
+
+    // New card appearance — smooth bouncy entrance
     return {
-      transform: `translateX(${dragDelta}px) rotate(${rotation}deg) scale(${scale})`,
-      transition: isSwipingOut ? 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)' : (isDragging ? 'none' : 'transform 0.3s ease'),
-      opacity: 1
+      transform: baseTransform,
+      transition: 'transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)',
+      opacity: 1,
     };
   };
 
+  const getBorderColor = () => {
+    if (dragDelta > 50) return 'rgba(239, 68, 68, 0.8)'; // Red = back
+    if (dragDelta < -50) return 'rgba(16, 185, 129, 0.8)'; // Green = next
+    return 'rgba(0, 0, 0, 0.1)';
+  };
+
   return (
-    <div 
+    <div
       className="fixed inset-0 bg-white flex items-center justify-center overflow-hidden touch-none"
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
@@ -415,59 +374,52 @@ const Index = () => {
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseUp}
     >
-      {/* Reset Button - Top Left */}
+      {/* Reset Button */}
       <button
         onClick={handleReset}
         className="absolute top-4 left-4 z-20 p-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
-        aria-label="Reset progress"
+        aria-label="Reset ticked progress"
       >
         <RotateCcw className="w-5 h-5 text-gray-700" />
       </button>
 
-      {/* Background swipe indicators */}
+      {/* Swipe Indicators */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute left-8 top-1/2 -translate-y-1/2 text-6xl font-black opacity-0 transition-opacity duration-200"
-             style={{ 
-               opacity: dragDelta > 50 ? Math.min(0.4, dragDelta / 300) : 0,
-               color: 'rgba(239, 68, 68, 0.8)' // RED for BACK
-             }}>
+        <div
+          className="absolute left-8 top-1/2 -translate-y-1/2 text-6xl font-black transition-opacity duration-200"
+          style={{ opacity: dragDelta > 50 ? Math.min(0.4, dragDelta / 300) : 0, color: 'rgba(239, 68, 68, 0.8)' }}
+        >
           ← BACK
         </div>
-        <div className="absolute right-8 top-1/2 -translate-y-1/2 text-6xl font-black opacity-0 transition-opacity duration-200"
-             style={{ 
-               opacity: dragDelta < -50 ? Math.min(0.4, Math.abs(dragDelta) / 300) : 0,
-               color: 'rgba(16, 185, 129, 0.8)' // GREEN for NEXT
-             }}>
+        <div
+          className="absolute right-8 top-1/2 -translate-y-1/2 text-6xl font-black transition-opacity duration-200"
+          style={{ opacity: dragDelta < -50 ? Math.min(0.4, Math.abs(dragDelta) / 300) : 0, color: 'rgba(16, 185, 129, 0.8)' }}
+        >
           NEXT →
         </div>
       </div>
 
       <div className="max-w-2xl w-full mx-auto px-4 relative z-10">
-        
-        {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-2xl font-light tracking-[0.5em] uppercase text-gray-900">
-            Drive Safe
-          </h1>
-          <p className="text-xs tracking-[0.3em] uppercase text-gray-500 mt-1">
-            Swipe ← → to browse
-          </p>
+          <h1 className="text-2xl font-light tracking-[0.5em] uppercase text-gray-900">Drive Safe</h1>
+          <p className="text-xs tracking-[0.3em] uppercase text-gray-500 mt-1">Swipe ← → to browse</p>
         </div>
 
-        {/* Main Card - Tinder Style with border */}
-        <div 
-          className="relative rounded-2xl border-4"
-          style={getZoomStyle()}
+        {/* Main Card */}
+        <div
+          className="relative rounded-2xl border-4 bg-white shadow-2xl"
+          style={{
+            ...getCardStyle(),
+            borderColor: getBorderColor(),
+          }}
         >
-          {/* Category */}
-          <div className="text-center mb-4 relative z-10">
+          <div className="text-center pt-8 px-6">
             <span className="text-xs font-medium tracking-[0.2em] uppercase text-gray-400">
               {currentPodcast.category}
             </span>
           </div>
 
-          {/* Content */}
-          <div className="text-center space-y-4 mb-8 relative z-10 bg-white rounded-2xl p-6">
+          <div className="text-center space-y-4 my-8 px-6">
             <h2 className="text-3xl md:text-4xl font-light leading-tight text-gray-900">
               {currentPodcast.title}
             </h2>
@@ -475,24 +427,18 @@ const Index = () => {
               {currentPodcast.description}
             </p>
             {currentPodcast.searchTerms && (
-              <p className="text-xs font-mono text-gray-400">
-                {currentPodcast.searchTerms}
-              </p>
+              <p className="text-xs font-mono text-gray-400">{currentPodcast.searchTerms}</p>
             )}
           </div>
 
-          {/* Play Button */}
-          <div className="flex justify-center mb-8 relative z-10">
+          <div className="flex justify-center my-8">
             <button
               onClick={handlePlay}
               className={`
-                w-48 h-48 rounded-full 
-                bg-black text-white
-                hover:bg-gray-900
-                transform transition-all duration-200
+                w-48 h-48 rounded-full bg-black text-white
+                hover:bg-gray-900 transform transition-all duration-200
                 ${isPlaying ? 'scale-90' : 'hover:scale-105 active:scale-95'}
-                flex items-center justify-center
-                shadow-xl
+                flex items-center justify-center shadow-xl
               `}
               aria-label="Play podcast"
             >
@@ -503,14 +449,12 @@ const Index = () => {
             </button>
           </div>
 
-          {/* Counter */}
-          <div className="text-center text-xs text-gray-400 tracking-[0.2em] relative z-10">
+          <div className="text-center text-xs text-gray-400 tracking-[0.2em] pb-8">
             {currentIndex + 1} / {podcasts.length}
           </div>
         </div>
 
-        {/* Visual Swipe Hint */}
-        <div className="flex justify-between items-center mt-8 opacity-30">
+        <div className="flex justify-between items-center mt-8 opacity-30 px-4">
           <div className="text-gray-400 text-xs font-light">← BACK</div>
           <div className="text-gray-400 text-xs font-light">NEXT →</div>
         </div>
