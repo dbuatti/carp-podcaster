@@ -429,7 +429,7 @@ const Index = () => {
           className="relative rounded-2xl border-4 transition-colors duration-75"
           style={{
             borderColor: getBorderColor(),
-            transform: `translateX(${dragDelta}px) rotate(${rotation}deg) scale(${scale})`,
+            transform: `translateX(${dragDelta}px) rotate(${rotation}deg) scale(${showNewCard ? 0 : scale})`,
             transition: isSwipingOut ? 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)' : (isDragging ? 'none' : 'transform 0.3s ease'),
             opacity: 1 // No fade
           }}
