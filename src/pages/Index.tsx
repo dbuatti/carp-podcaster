@@ -299,8 +299,8 @@ const Index = () => {
     if (!isDragging || dragStartX === null || isSwipingOut) return;
     
     if (Math.abs(dragDelta) > 100) {
-      // Swipe LEFT = forward (next)
-      // Swipe RIGHT = back (previous)
+      // Swipe LEFT = forward (next) = GREEN
+      // Swipe RIGHT = back (previous) = RED
       if (dragDelta < 0) {
         handleNext();
       } else {
@@ -331,8 +331,8 @@ const Index = () => {
     if (!isDragging || dragStartX === null || isSwipingOut) return;
     
     if (Math.abs(dragDelta) > 100) {
-      // Swipe LEFT = forward (next)
-      // Swipe RIGHT = back (previous)
+      // Swipe LEFT = forward (next) = GREEN
+      // Swipe RIGHT = back (previous) = RED
       if (dragDelta < 0) {
         handleNext();
       } else {
@@ -352,14 +352,14 @@ const Index = () => {
   const rotation = dragDelta * 0.05;
   const scale = Math.max(0.8, 1 - Math.abs(dragDelta) / 500);
 
-  // Border color based on swipe direction
+  // Border color: GREEN for next (left swipe), RED for back (right swipe)
   const getBorderColor = () => {
     if (dragDelta > 50) {
-      // Swiping right (previous/back) - green border
-      return 'rgba(16, 185, 129, 0.8)';
-    } else if (dragDelta < -50) {
-      // Swiping left (next/forward) - red border
+      // Swiping right = BACK = RED
       return 'rgba(239, 68, 68, 0.8)';
+    } else if (dragDelta < -50) {
+      // Swiping left = NEXT = GREEN
+      return 'rgba(16, 185, 129, 0.8)';
     }
     return 'rgba(0, 0, 0, 0.1)';
   };
@@ -380,14 +380,14 @@ const Index = () => {
         <div className="absolute left-8 top-1/2 -translate-y-1/2 text-6xl font-black opacity-0 transition-opacity duration-200"
              style={{ 
                opacity: dragDelta > 50 ? Math.min(0.4, dragDelta / 300) : 0,
-               color: 'rgba(16, 185, 129, 0.8)'
+               color: 'rgba(239, 68, 68, 0.8)' // RED for BACK
              }}>
           ← BACK
         </div>
         <div className="absolute right-8 top-1/2 -translate-y-1/2 text-6xl font-black opacity-0 transition-opacity duration-200"
              style={{ 
                opacity: dragDelta < -50 ? Math.min(0.4, Math.abs(dragDelta) / 300) : 0,
-               color: 'rgba(239, 68, 68, 0.8)'
+               color: 'rgba(16, 185, 129, 0.8)' // GREEN for NEXT
              }}>
           NEXT →
         </div>
