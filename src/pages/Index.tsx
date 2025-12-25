@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { Play, Check } from 'lucide-react';
+import { Play } from 'lucide-react';
 
 interface PodcastType {
   id: number;
@@ -72,28 +72,7 @@ const podcasts: PodcastType[] = [
     category: "🧘 Voice, Body & Somatics",
     appleLink: "https://podcasts.apple.com/us/podcast/the-art-of-receiving-and-giving-the-wheel/id1286485146?i=1000731393085"
   },
-  {
-    id: 28,
-    title: "How to Regulate Your Nervous System For Stress, Anxiety, And Trauma with Peter Levine",
-    description: "10% Happier with Dan Harris",
-    category: "🧘 Voice, Body & Somatics",
-    appleLink: "https://podcasts.apple.com/us/podcast/how-to-regulate-your-nervous-system-for-stress-anxiety/id1087147821?i=1000653595094"
-  },
-  {
-    id: 29,
-    title: "The Wheel of Consent Revolution with Dr. Betty Martin",
-    description: "The Erotic Philosopher",
-    category: "🧘 Voice, Body & Somatics",
-    appleLink: "https://podcasts.apple.com/us/podcast/the-wheel-of-consent-revolution-with-dr-betty-martin/id1525741635?i=1000571567907"
-  },
-  {
-    id: 30,
-    title: "Dr. Jack Feldman: Breathing for Mental & Physical Health & Performance",
-    description: "Huberman Lab",
-    category: "🧘 Voice, Body & Somatics",
-    appleLink: "https://podcasts.apple.com/us/podcast/dr-jack-feldman-breathing-for-mental-physical-health/id1545953110?i=1000547400245"
-  },
-
+  
   // Consciousness & Meaning-Making
   {
     id: 9,
@@ -149,27 +128,6 @@ const podcasts: PodcastType[] = [
     category: "☸️ Consciousness & Meaning-Making",
     appleLink: "https://podcasts.apple.com/us/podcast/joseph-goldstein-on-impermanence-impersonality-and/id1087147821?i=1000683225660"
   },
-  {
-    id: 31,
-    title: "Three Strategies for Getting Over Yourself with Joseph Goldstein",
-    description: "10% Happier with Dan Harris",
-    category: "☸️ Consciousness & Meaning-Making",
-    appleLink: "https://podcasts.apple.com/us/podcast/three-strategies-for-getting-over-yourself-joseph-goldstein/id1087147821?i=1000731139217"
-  },
-  {
-    id: 32,
-    title: "Meditation Party with Sebene Selassie and Jeff Warren",
-    description: "10% Happier with Dan Harris",
-    category: "☸️ Consciousness & Meaning-Making",
-    appleLink: "https://podcasts.apple.com/us/podcast/meditation-party-with-sebene-selassie-and-jeff/id1087147821?i=1000613124232"
-  },
-  {
-    id: 33,
-    title: "How To Handle Literally Anything with Sebene Selassie",
-    description: "10% Happier with Dan Harris",
-    category: "☸️ Consciousness & Meaning-Making",
-    appleLink: "https://podcasts.apple.com/us/podcast/how-to-handle-literally-anything-sebene-selassie-and/id1087147821?i=1000652526353"
-  },
 
   // Creative Process & Artistic Identity
   {
@@ -207,13 +165,6 @@ const podcasts: PodcastType[] = [
     category: "🎨 Creative Process & Artistic Identity",
     appleLink: "https://podcasts.apple.com/us/podcast/sentimental-garbage/id1372827605",
     searchTerms: "Elizabeth Day Sondheim"
-  },
-  {
-    id: 34,
-    title: "Rick Rubin on How to Make Something Great",
-    description: "People I (Mostly) Admire",
-    category: "🎨 Creative Process & Artistic Identity",
-    appleLink: "https://podcasts.apple.com/us/podcast/rick-rubin-on-how-to-make-something-great-update/id1525936566?i=1000723160112"
   },
 
   // Systems, Ethics & Thinking Clearly
@@ -273,55 +224,6 @@ const podcasts: PodcastType[] = [
     appleLink: "https://podcasts.apple.com/us/podcast/transforming-trauma/id1496190024",
     searchTerms: "Polyvagal Theory Trauma"
   },
-  {
-    id: 35,
-    title: "How to Use Polyvagal Theory to Shift Your Nervous System with Deb Dana",
-    description: "Your Life In Process",
-    category: "⚖️ Systems, Ethics & Thinking Clearly",
-    appleLink: "https://podcasts.apple.com/us/podcast/how-to-use-polyvagal-theory-to-shift-your-nervous-system/id1596820706?i=1000579913098"
-  },
-  {
-    id: 36,
-    title: "Introduction to Polyvagal Theory with Deb Dana",
-    description: "the tara bixby podcast",
-    category: "⚖️ Systems, Ethics & Thinking Clearly",
-    appleLink: "https://podcasts.apple.com/us/podcast/141-deb-dana-introduction-to-polyvagal-theory/id1506417679?i=1000602246434"
-  },
-  {
-    id: 37,
-    title: "Polyvagal Theory and the Nervous System with Deb Dana",
-    description: "The Third Place",
-    category: "⚖️ Systems, Ethics & Thinking Clearly",
-    appleLink: "https://podcasts.apple.com/us/podcast/polyvagal-theory-and-the-nervous-system-with-deb-dana-ep-76/id1511577455?i=1000550675113"
-  },
-  {
-    id: 38,
-    title: "Polyvagal Theory for Trauma with Arielle Schwartz",
-    description: "Evidence-Based Podcast",
-    category: "⚖️ Systems, Ethics & Thinking Clearly",
-    appleLink: "https://podcasts.apple.com/us/podcast/polyvagal-theory-for-trauma-with-arielle-schwartz-phd/id1619983266?i=1000709131944"
-  },
-  {
-    id: 39,
-    title: "Finding Glimmers: A Polyvagal Approach with Deb Dana & Courtney Rolfe",
-    description: "Therapy Chat",
-    category: "⚖️ Systems, Ethics & Thinking Clearly",
-    appleLink: "https://podcasts.apple.com/us/podcast/438-finding-glimmers-a-polyvagal-approach-with-deb/id1031099411?i=1000661233274"
-  },
-  {
-    id: 40,
-    title: "Peter Levine: Somatic Experiencing",
-    description: "Grief is a Sneaky Bitch",
-    category: "⚖️ Systems, Ethics & Thinking Clearly",
-    appleLink: "https://podcasts.apple.com/us/podcast/peter-levine-somatic-experiencing/id1474558908?i=1000649700454"
-  },
-  {
-    id: 41,
-    title: "The Many Sides of Trauma with Peter Levine",
-    description: "ManTalks Podcast",
-    category: "⚖️ Systems, Ethics & Thinking Clearly",
-    appleLink: "https://podcasts.apple.com/us/podcast/peter-levine-the-many-sides-of-trauma/id1015078747?i=1000658438132"
-  },
 ];
 
 const Index = () => {
@@ -333,22 +235,12 @@ const Index = () => {
   const [isSwipingOut, setIsSwipingOut] = useState(false);
   const [swipeDirection, setSwipeDirection] = useState<'left' | 'right' | null>(null);
   const [showNewCard, setShowNewCard] = useState(false);
-  const [swipedLeftIds, setSwipedLeftIds] = useState<Set<number>>(new Set());
 
   // Load position from localStorage on mount
   useEffect(() => {
     const savedIndex = localStorage.getItem('driveSafePodcastIndex');
     if (savedIndex !== null) {
       setCurrentIndex(parseInt(savedIndex, 10));
-    }
-    const savedSwipedLeft = localStorage.getItem('driveSafeSwipedLeft');
-    if (savedSwipedLeft) {
-      try {
-        const parsed = JSON.parse(savedSwipedLeft);
-        setSwipedLeftIds(new Set(parsed));
-      } catch (e) {
-        setSwipedLeftIds(new Set());
-      }
     }
     document.body.style.overflow = 'hidden';
     return () => {
@@ -360,11 +252,6 @@ const Index = () => {
   useEffect(() => {
     localStorage.setItem('driveSafePodcastIndex', currentIndex.toString());
   }, [currentIndex]);
-
-  // Save swiped left IDs to localStorage
-  useEffect(() => {
-    localStorage.setItem('driveSafeSwipedLeft', JSON.stringify(Array.from(swipedLeftIds)));
-  }, [swipedLeftIds]);
 
   const handlePlay = () => {
     const podcast = podcasts[currentIndex];
@@ -378,18 +265,12 @@ const Index = () => {
   const swipeOffScreen = (direction: 'left' | 'right') => {
     setIsSwipingOut(true);
     setSwipeDirection(direction);
-    setShowNewCard(false);
-    
-    // If swiping left, add to swiped set
-    if (direction === 'left') {
-      setSwipedLeftIds(prev => new Set(prev).add(podcasts[currentIndex].id));
-    }
     
     // Card flies off screen
     const offScreenX = direction === 'right' ? window.innerWidth : -window.innerWidth;
     setDragDelta(offScreenX);
     
-    // After animation, move to next
+    // After animation, move to next and trigger zoom
     setTimeout(() => {
       if (direction === 'left') {
         // Swipe LEFT = forward through numbering
@@ -398,16 +279,12 @@ const Index = () => {
         // Swipe RIGHT = backward through numbering
         setCurrentIndex((prev) => (prev === 0 ? podcasts.length - 1 : prev - 1));
       }
-      // Reset and trigger zoom
+      // Reset
       setDragDelta(0);
       setIsSwipingOut(false);
       setSwipeDirection(null);
+      // Trigger zoom for new card
       setShowNewCard(true);
-      
-      // Hide zoom after animation
-      setTimeout(() => {
-        setShowNewCard(false);
-      }, 300);
     }, 300);
   };
 
@@ -484,7 +361,6 @@ const Index = () => {
   };
 
   const currentPodcast = podcasts[currentIndex];
-  const isCurrentSwipedLeft = swipedLeftIds.has(currentPodcast.id);
 
   // Calculate rotation based on drag
   const rotation = dragDelta * 0.05;
@@ -500,6 +376,22 @@ const Index = () => {
       return 'rgba(16, 185, 129, 0.8)';
     }
     return 'rgba(0, 0, 0, 0.1)';
+  };
+
+  // For zoom animation - card starts small and grows
+  const getZoomStyle = () => {
+    if (showNewCard) {
+      return {
+        transform: 'scale(0)',
+        transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+        opacity: 1
+      };
+    }
+    return {
+      transform: `translateX(${dragDelta}px) rotate(${rotation}deg) scale(${scale})`,
+      transition: isSwipingOut ? 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)' : (isDragging ? 'none' : 'transform 0.3s ease'),
+      opacity: 1
+    };
   };
 
   return (
@@ -546,12 +438,7 @@ const Index = () => {
         {/* Main Card - Tinder Style with border */}
         <div 
           className="relative rounded-2xl border-4"
-          style={{
-            borderColor: getBorderColor(),
-            transform: showNewCard ? 'scale(0)' : `translateX(${dragDelta}px) rotate(${rotation}deg) scale(${scale})`,
-            transition: isSwipingOut ? 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)' : (isDragging ? 'none' : 'transform 0.3s ease'),
-            opacity: 1 // No fade
-          }}
+          style={getZoomStyle()}
         >
           {/* Category */}
           <div className="text-center mb-4 relative z-10">
@@ -581,8 +468,8 @@ const Index = () => {
               onClick={handlePlay}
               className={`
                 w-48 h-48 rounded-full 
-                ${isCurrentSwipedLeft ? 'bg-green-500 hover:bg-green-600' : 'bg-black hover:bg-gray-900'}
-                text-white
+                bg-black text-white
+                hover:bg-gray-900
                 transform transition-all duration-200
                 ${isPlaying ? 'scale-90' : 'hover:scale-105 active:scale-95'}
                 flex items-center justify-center
@@ -591,14 +478,8 @@ const Index = () => {
               aria-label="Play podcast"
             >
               <div className="flex flex-col items-center gap-2">
-                {isCurrentSwipedLeft ? (
-                  <Check className="w-16 h-16 fill-current" />
-                ) : (
-                  <Play className="w-16 h-16 fill-current" />
-                )}
-                <span className="text-xs font-medium tracking-[0.3em]">
-                  {isCurrentSwipedLeft ? 'SWIPED' : 'PLAY'}
-                </span>
+                <Play className="w-16 h-16 fill-current" />
+                <span className="text-xs font-medium tracking-[0.3em]">PLAY</span>
               </div>
             </button>
           </div>
