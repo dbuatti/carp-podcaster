@@ -234,6 +234,7 @@ const Index = () => {
   const [isDragging, setIsDragging] = useState(false);
   const [isSwipingOut, setIsSwipingOut] = useState(false);
   const [swipeDirection, setSwipeDirection] = useState<'left' | 'right' | null>(null);
+  const [isTransitioning, setIsTransitioning] = useState(false);
 
   // Disable scroll on mount
   useEffect(() => {
