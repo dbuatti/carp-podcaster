@@ -23,48 +23,53 @@ interface CategoryStyle {
   buttonHover: string;
   glow: string;
   ring: string;
+  border: string;
 }
 
 const categoryStyles: Record<string, CategoryStyle> = {
   "🧘 Voice, Body & Somatics": {
-    bg: "from-emerald-50 via-teal-50 to-emerald-100",
-    text: "text-emerald-800",
-    accent: "bg-emerald-500",
-    accentText: "text-white",
-    button: "bg-emerald-600",
-    buttonHover: "bg-emerald-700",
-    glow: "shadow-[0_0_60px_rgba(16,185,129,0.5)]",
-    ring: "ring-emerald-500/40"
+    bg: "from-emerald-600 via-teal-700 to-emerald-800",
+    text: "text-emerald-100",
+    accent: "bg-emerald-400",
+    accentText: "text-emerald-900",
+    button: "bg-emerald-400 hover:bg-emerald-300 text-emerald-900",
+    buttonHover: "bg-emerald-300",
+    glow: "shadow-[0_0_80px_rgba(52,211,153,0.6)]",
+    ring: "ring-emerald-400/50",
+    border: "border-emerald-400"
   },
   "☸️ Consciousness & Meaning-Making": {
-    bg: "from-purple-50 via-pink-50 to-purple-100",
-    text: "text-purple-800",
-    accent: "bg-purple-500",
-    accentText: "text-white",
-    button: "bg-purple-600",
-    buttonHover: "bg-purple-700",
-    glow: "shadow-[0_0_60px_rgba(168,85,247,0.5)]",
-    ring: "ring-purple-500/40"
+    bg: "from-purple-600 via-fuchsia-700 to-purple-800",
+    text: "text-purple-100",
+    accent: "bg-purple-400",
+    accentText: "text-purple-900",
+    button: "bg-purple-400 hover:bg-purple-300 text-purple-900",
+    buttonHover: "bg-purple-300",
+    glow: "shadow-[0_0_80px_rgba(192,132,252,0.6)]",
+    ring: "ring-purple-400/50",
+    border: "border-purple-400"
   },
   "🎨 Creative Process & Artistic Identity": {
-    bg: "from-orange-50 via-amber-50 to-orange-100",
-    text: "text-orange-800",
-    accent: "bg-orange-500",
-    accentText: "text-white",
-    button: "bg-orange-600",
-    buttonHover: "bg-orange-700",
-    glow: "shadow-[0_0_60px_rgba(249,115,22,0.5)]",
-    ring: "ring-orange-500/40"
+    bg: "from-orange-600 via-amber-700 to-orange-800",
+    text: "text-orange-100",
+    accent: "bg-orange-400",
+    accentText: "text-orange-900",
+    button: "bg-orange-400 hover:bg-orange-300 text-orange-900",
+    buttonHover: "bg-orange-300",
+    glow: "shadow-[0_0_80px_rgba(251,146,60,0.6)]",
+    ring: "ring-orange-400/50",
+    border: "border-orange-400"
   },
   "⚖️ Systems, Ethics & Thinking Clearly": {
-    bg: "from-blue-50 via-cyan-50 to-blue-100",
-    text: "text-blue-800",
-    accent: "bg-blue-500",
-    accentText: "text-white",
-    button: "bg-blue-600",
-    buttonHover: "bg-blue-700",
-    glow: "shadow-[0_0_60px_rgba(59,130,246,0.5)]",
-    ring: "ring-blue-500/40"
+    bg: "from-blue-600 via-cyan-700 to-blue-800",
+    text: "text-blue-100",
+    accent: "bg-blue-400",
+    accentText: "text-blue-900",
+    button: "bg-blue-400 hover:bg-blue-300 text-blue-900",
+    buttonHover: "bg-blue-300",
+    glow: "shadow-[0_0_80px_rgba(96,165,250,0.6)]",
+    ring: "ring-blue-400/50",
+    border: "border-blue-400"
   }
 };
 
@@ -310,91 +315,98 @@ const Index = () => {
   const styles = categoryStyles[currentPodcast.category];
 
   return (
-    <div className={`min-h-screen bg-gradient-to-br ${styles.bg} p-3 md:p-6 flex items-center justify-center overflow-hidden`}>
-      <div className="max-w-2xl w-full mx-auto space-y-4 md:space-y-6">
+    <div className={`min-h-screen bg-gradient-to-b ${styles.bg} p-3 md:p-6 flex items-center justify-center overflow-hidden relative`}>
+      {/* Artistic background elements */}
+      <div className="absolute inset-0 opacity-20 pointer-events-none">
+        <div className="absolute top-1/4 left-1/4 w-32 h-32 rounded-full border-2 border-white/30 rotate-45"></div>
+        <div className="absolute bottom-1/3 right-1/3 w-24 h-24 border-2 border-white/20 rotate-12"></div>
+      </div>
+
+      <div className="max-w-2xl w-full mx-auto space-y-4 md:space-y-6 relative z-10">
         
-        {/* Header - Compact */}
-        <div className="text-center space-y-1">
-          <h1 className="text-2xl md:text-3xl font-black text-gray-900 tracking-tight">
-            Drive Safe
-          </h1>
-          <p className="text-gray-700 text-xs md:text-sm font-medium">
-            LONG DRIVES MADE BETTER
+        {/* Artistic Header */}
+        <div className="text-center space-y-2">
+          <div className="flex items-center justify-center gap-2">
+            <Podcast className="w-6 h-6 opacity-80" />
+            <h1 className="text-3xl md:text-4xl font-black tracking-tighter uppercase">
+              Drive Safe
+            </h1>
+          </div>
+          <p className={`${styles.text} opacity-70 text-xs md:text-sm tracking-widest uppercase`}>
+            Long Drives Made Better
           </p>
         </div>
 
-        {/* Category Badge - Compact */}
-        <div className="text-center">
-          <span className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold ${styles.accent} ${styles.accentText}`}>
-            <span>{currentPodcast.category}</span>
-          </span>
+        {/* Category - Bold Banner */}
+        <div className={`text-center ${styles.accent} ${styles.accentText} py-3 rounded-lg font-black text-sm tracking-widest uppercase mx-4`}>
+          {currentPodcast.category}
         </div>
 
-        {/* Podcast Card - Compact but readable */}
-        <div className="bg-white/95 backdrop-blur-xl rounded-2xl shadow-xl p-5 md:p-6 min-h-[200px] flex flex-col justify-center border border-white/60">
-          <h2 className="text-xl md:text-2xl font-black text-gray-900 mb-2 leading-tight">
+        {/* Podcast Card - Artistic Layout */}
+        <div className={`${styles.border} border-4 rounded-3xl p-6 md:p-8 min-h-[240px] flex flex-col justify-center bg-black/20 backdrop-blur-sm`}>
+          <div className={`${styles.text} text-xs font-bold tracking-[0.3em] uppercase mb-3 opacity-80`}>
+            Episode {currentIndex + 1}
+          </div>
+          <h2 className={`${styles.text} text-2xl md:text-3xl font-black leading-tight mb-3`}>
             {currentPodcast.title}
           </h2>
-          <p className="text-gray-700 text-base md:text-lg font-semibold leading-relaxed">
+          <p className={`${styles.text} text-lg md:text-xl font-semibold leading-relaxed opacity-90`}>
             {currentPodcast.description}
           </p>
           {currentPodcast.searchTerms && (
-            <div className="inline-block px-2 py-1 bg-gray-100 rounded text-[10px] font-medium text-gray-600 mt-2 border border-gray-200">
-              Search: "{currentPodcast.searchTerms}"
+            <div className="mt-3 text-xs opacity-60 font-mono">
+              {currentPodcast.searchTerms}
             </div>
           )}
-          <div className={`text-[10px] mt-3 font-bold ${styles.text} opacity-70`}>
-            {currentIndex + 1} / {podcasts.length}
-          </div>
         </div>
 
-        {/* MASSIVE PLAY BUTTON - Takes up most screen space */}
-        <div className="flex justify-center py-2">
+        {/* MASSIVE CIRCULAR PLAY BUTTON */}
+        <div className="flex justify-center py-4">
           <button
             onClick={handlePlay}
             className={`
-              w-48 h-48 md:w-56 md:h-56 rounded-full 
+              w-52 h-52 md:w-64 md:h-64 rounded-full 
               ${styles.button} 
-              hover:${styles.buttonHover} 
-              text-white 
+              text-black
               ${styles.glow}
               transform transition-all duration-200
-              ${isPlaying ? 'scale-95' : 'active:scale-95'}
+              ${isPlaying ? 'scale-90 rotate-180' : 'hover:scale-105 active:scale-95'}
               flex items-center justify-center
               relative overflow-hidden
-              ring-6 ${styles.ring}
-              active:ring-8
+              ring-8 ${styles.ring}
+              active:ring-12
               touch-manipulation
+              shadow-2xl
             `}
             aria-label="Play podcast"
           >
-            <div className="absolute inset-0 bg-white/20 active:bg-white/30 transition-opacity"></div>
-            <div className="relative flex flex-col items-center gap-3 md:gap-4">
-              <Play className="w-20 h-20 md:w-24 md:h-24 fill-current" />
-              <span className="text-sm md:text-base font-black uppercase tracking-[0.4em]">PLAY</span>
+            <div className="absolute inset-0 bg-white/30 active:bg-white/50 transition-opacity"></div>
+            <div className="relative flex flex-col items-center gap-4">
+              <Play className="w-24 h-24 md:w-32 md:h-32 fill-current" />
+              <span className="text-base md:text-lg font-black uppercase tracking-[0.5em]">PLAY</span>
             </div>
           </button>
         </div>
 
-        {/* Navigation Buttons - HUGE touch targets */}
-        <div className="grid grid-cols-2 gap-3 md:gap-4">
+        {/* Navigation - Side by Side, Massive */}
+        <div className="grid grid-cols-2 gap-4 md:gap-6">
           <Button
             onClick={handlePrevious}
             size="lg"
             className={`
-              h-28 md:h-32 text-xl md:text-2xl font-black 
-              bg-white hover:bg-gray-50 
-              text-gray-900 
-              border-4 border-gray-200
-              shadow-lg hover:shadow-xl
+              h-32 md:h-40 text-2xl md:text-3xl font-black 
+              bg-white/90 hover:bg-white 
+              text-black 
+              border-4 ${styles.border}
+              shadow-2xl hover:shadow-3xl
               transition-all duration-150
               active:scale-95
-              rounded-xl
+              rounded-2xl
               touch-manipulation
             `}
             aria-label="Previous podcast"
           >
-            <ChevronLeft className="w-10 h-10 md:w-12 md:h-12 mr-2" />
+            <ChevronLeft className="w-12 h-12 md:w-16 md:h-16 mr-2" />
             LEFT
           </Button>
 
@@ -402,30 +414,28 @@ const Index = () => {
             onClick={handleNext}
             size="lg"
             className={`
-              h-28 md:h-32 text-xl md:text-2xl font-black 
-              bg-white hover:bg-gray-50 
-              text-gray-900 
-              border-4 border-gray-200
-              shadow-lg hover:shadow-xl
+              h-32 md:h-40 text-2xl md:text-3xl font-black 
+              bg-white/90 hover:bg-white 
+              text-black 
+              border-4 ${styles.border}
+              shadow-2xl hover:shadow-3xl
               transition-all duration-150
               active:scale-95
-              rounded-xl
+              rounded-2xl
               touch-manipulation
             `}
             aria-label="Next podcast"
           >
             RIGHT
-            <ChevronRight className="w-10 h-10 md:w-12 md:h-12 ml-2" />
+            <ChevronRight className="w-12 h-12 md:w-16 md:h-16 ml-2" />
           </Button>
         </div>
 
-        {/* Minimal tips */}
-        <div className="bg-white/90 backdrop-blur rounded-lg p-3 text-xs text-gray-800 border border-white/70">
-          <p className="font-bold mb-1">💡 Tips:</p>
-          <ul className="list-disc list-inside space-y-0.5 opacity-80">
-            <li>Press big circle to open podcast</li>
-            <li>Use LEFT/RIGHT while parked</li>
-          </ul>
+        {/* Minimal Footer */}
+        <div className="text-center">
+          <div className={`${styles.text} text-xs font-bold tracking-[0.4em] uppercase opacity-60`}>
+            {podcasts.length} • Available • Now
+          </div>
         </div>
       </div>
     </div>
