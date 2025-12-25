@@ -234,7 +234,6 @@ const Index = () => {
   const [isDragging, setIsDragging] = useState(false);
   const [isSwipingOut, setIsSwipingOut] = useState(false);
   const [swipeDirection, setSwipeDirection] = useState<'left' | 'right' | null>(null);
-  const [isTransitioning, setIsTransitioning] = useState(false);
 
   // Disable scroll on mount
   useEffect(() => {
@@ -263,9 +262,11 @@ const Index = () => {
     
     // After animation, move to next
     setTimeout(() => {
-      if (direction === 'right') {
+      if (direction === 'left') {
+        // Swipe LEFT = forward through numbering
         setCurrentIndex((prev) => (prev === podcasts.length - 1 ? 0 : prev + 1));
       } else {
+        // Swipe RIGHT = backward through numbering
         setCurrentIndex((prev) => (prev === 0 ? podcasts.length - 1 : prev - 1));
       }
       // Reset
