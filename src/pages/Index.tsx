@@ -233,6 +233,9 @@ const Index = () => {
   const [dragDelta, setDragDelta] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [isSwipingOut, setIsSwipingOut] = useState(false);
+  // 'next' means the new card comes from the right (swiped left)
+  // 'prev' means the new card comes from the left (swiped right)
+  const [swipeDirection, setSwipeDirection] = useState<'next' | 'prev' | null>(null); 
 
   // Load current index from localStorage
   useEffect(() => {
@@ -269,23 +272,21 @@ const Index = () => {
 
   const swipeOffScreen = (direction: 'left' | 'right') => {
     setIsSwipingOut(true);
+    setSwipeDirection(direction === 'left' ? 'next' : 'prev'); // Set direction for the *incoming* card
 
     const offScreenX = direction === 'right' ? window.innerWidth : -window.innerWidth;
-    setDragDelta(offScreenX);
+    setDragDelta(offScreenX); // This pushes the *current* card off-screen
 
     setTimeout(() => {
       if (direction === 'left') {
-        // Swipe left = NEXT (forward)
         setCurrentIndex((prev) => (prev === podcasts.length - 1 ? 0 : prev + 1));
       } else {
-        // Swipe right = PREVIOUS (back)
         setCurrentIndex((prev) => (prev === 0 ? podcasts.length - 1 : prev - 1));
       }
-
-      // Reset drag state
-      setDragDelta(0);
-      setIsSwipingOut(false);
-    }, 300);
+      setDragDelta(0); // Reset dragDelta for the new card
+      setIsSwipingOut(false); // The old card is gone
+      // swipeDirection will be used by the new card's useEffect
+    }, 300); // Match CSS transition duration
   };
 
   const handleNext = () => swipeOffScreen('left');
@@ -309,7 +310,7 @@ const Index = () => {
     if (Math.abs(dragDelta) > 100) {
       dragDelta < 0 ? handleNext() : handlePrevious();
     } else {
-      setDragDelta(0);
+      setDragDelta(0); // Snap back if not enough drag
     }
 
     setDragStartX(null);
@@ -334,34 +335,62 @@ const Index = () => {
 
   const currentPodcast = podcasts[currentIndex];
 
-  // Visual calculations
+  // Visual calculations for the OUTGOING card
   const rotation = dragDelta * 0.05;
   const scale = Math.max(0.85, 1 - Math.abs(dragDelta) / 600);
 
-  const getCardStyle = () => {
-    const baseTransform = `translateX(${dragDelta}px) rotate(${rotation}deg) scale(${scale})`;
+  // State for the INCOMING card's animation
+  const [cardTransform, setCardTransform] = useState('translateX(0px)');
+  const [cardOpacity, setCardOpacity] = useState(1);
+  const [cardTransition, setCardTransition] = useState('none');
 
-    if (isDragging) {
-      return { transform: baseTransform, transition: 'none' };
+  useEffect(() => {
+    // This useEffect runs when the component mounts or currentIndex changes (due to key prop)
+    if (swipeDirection === 'next') {
+      // New card should come from the right
+      setCardTransform(`translateX(${window.innerWidth}px)`);
+      setCardOpacity(0);
+      setCardTransition('none'); // No transition on initial render
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          setCardTransform('translateX(0px)');
+          setCardOpacity(1);
+          setCardTransition('transform 0.3s ease-out, opacity 0.3s ease-out');
+        });
+      });
+    } else if (swipeDirection === 'prev') {
+      // New card should come from the left
+      setCardTransform(`translateX(-${window.innerWidth}px)`);
+      setCardOpacity(0);
+      setCardTransition('none'); // No transition on initial render
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          setCardTransform('translateX(0px)');
+          setCardOpacity(1);
+          setCardTransition('transform 0.3s ease-out, opacity 0.3s ease-out');
+        });
+      });
+    } else {
+      // Initial load or reset, no specific swipe direction
+      setCardTransform('translateX(0px)');
+      setCardOpacity(1);
+      setCardTransition('transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)'); // Bouncy entrance
     }
 
-    if (isSwipingOut) {
-      return { transform: baseTransform, transition: 'transform 0.3s ease-out', opacity: 0 };
-    }
-
-    // New card appearance — smooth bouncy entrance
-    return {
-      transform: baseTransform,
-      transition: 'transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)',
-      opacity: 1,
-    };
-  };
+    // Reset swipeDirection after the animation has been set up
+    const timer = setTimeout(() => {
+      setSwipeDirection(null);
+    }, 300); // Give enough time for the transition to start
+    return () => clearTimeout(timer);
+  }, [currentIndex]); // Depend on currentIndex to trigger re-animation on new card
 
   const getBorderColor = () => {
     if (dragDelta > 50) return 'rgba(239, 68, 68, 0.8)'; // Red = back
     if (dragDelta < -50) return 'rgba(16, 185, 129, 0.8)'; // Green = next
     return 'rgba(0, 0, 0, 0.1)';
   };
+
+  const cardBackgroundColor = currentIndex % 2 === 0 ? 'bg-white' : 'bg-gray-50'; // Alternate background
 
   return (
     <div
@@ -407,9 +436,14 @@ const Index = () => {
 
         {/* Main Card */}
         <div
-          className="relative rounded-2xl border-4 bg-white shadow-2xl"
+          key={currentPodcast.id} // Key to force re-mount on currentIndex change
+          className={`relative rounded-2xl border-4 shadow-2xl ${cardBackgroundColor}`}
           style={{
-            ...getCardStyle(),
+            // If dragging or swiping out, apply the outgoing card's styles
+            // Otherwise, apply the incoming card's styles
+            transform: (isDragging || isSwipingOut) ? `translateX(${dragDelta}px) rotate(${rotation}deg) scale(${scale})` : cardTransform,
+            opacity: (isDragging || isSwipingOut) ? (isSwipingOut ? 0 : 1) : cardOpacity,
+            transition: (isDragging || isSwipingOut) ? (isDragging ? 'none' : 'transform 0.3s ease-out, opacity 0.3s ease-out') : cardTransition,
             borderColor: getBorderColor(),
           }}
         >
