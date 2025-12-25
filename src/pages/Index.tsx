@@ -1,9 +1,8 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight, Play, Podcast } from 'lucide-react';
-import { toast } from 'sonner';
+import { Play, Podcast } from 'lucide-react';
 
 interface PodcastType {
   id: number;
@@ -13,65 +12,6 @@ interface PodcastType {
   appleLink: string;
   searchTerms?: string;
 }
-
-interface CategoryStyle {
-  bg: string;
-  text: string;
-  accent: string;
-  accentText: string;
-  button: string;
-  buttonHover: string;
-  glow: string;
-  ring: string;
-  border: string;
-}
-
-const categoryStyles: Record<string, CategoryStyle> = {
-  "🧘 Voice, Body & Somatics": {
-    bg: "from-emerald-600 via-teal-700 to-emerald-800",
-    text: "text-emerald-100",
-    accent: "bg-emerald-400",
-    accentText: "text-emerald-900",
-    button: "bg-emerald-400 hover:bg-emerald-300 text-emerald-900",
-    buttonHover: "bg-emerald-300",
-    glow: "shadow-[0_0_80px_rgba(52,211,153,0.6)]",
-    ring: "ring-emerald-400/50",
-    border: "border-emerald-400"
-  },
-  "☸️ Consciousness & Meaning-Making": {
-    bg: "from-purple-600 via-fuchsia-700 to-purple-800",
-    text: "text-purple-100",
-    accent: "bg-purple-400",
-    accentText: "text-purple-900",
-    button: "bg-purple-400 hover:bg-purple-300 text-purple-900",
-    buttonHover: "bg-purple-300",
-    glow: "shadow-[0_0_80px_rgba(192,132,252,0.6)]",
-    ring: "ring-purple-400/50",
-    border: "border-purple-400"
-  },
-  "🎨 Creative Process & Artistic Identity": {
-    bg: "from-orange-600 via-amber-700 to-orange-800",
-    text: "text-orange-100",
-    accent: "bg-orange-400",
-    accentText: "text-orange-900",
-    button: "bg-orange-400 hover:bg-orange-300 text-orange-900",
-    buttonHover: "bg-orange-300",
-    glow: "shadow-[0_0_80px_rgba(251,146,60,0.6)]",
-    ring: "ring-orange-400/50",
-    border: "border-orange-400"
-  },
-  "⚖️ Systems, Ethics & Thinking Clearly": {
-    bg: "from-blue-600 via-cyan-700 to-blue-800",
-    text: "text-blue-100",
-    accent: "bg-blue-400",
-    accentText: "text-blue-900",
-    button: "bg-blue-400 hover:bg-blue-300 text-blue-900",
-    buttonHover: "bg-blue-300",
-    glow: "shadow-[0_0_80px_rgba(96,165,250,0.6)]",
-    ring: "ring-blue-400/50",
-    border: "border-blue-400"
-  }
-};
 
 const podcasts: PodcastType[] = [
   // Voice, Body & Somatics
@@ -290,6 +230,9 @@ const podcasts: PodcastType[] = [
 const Index = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [dragStartX, setDragStartX] = useState<number | null>(null);
+  const [dragDelta, setDragDelta] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
 
   const handlePlay = () => {
     const podcast = podcasts[currentIndex];
@@ -297,145 +240,160 @@ const Index = () => {
       setIsPlaying(true);
       setTimeout(() => setIsPlaying(false), 1000);
       window.location.href = podcast.appleLink;
-      toast.info('Opening in Apple Podcasts...', {
-        duration: 3000,
-      });
     }
-  };
-
-  const handlePrevious = () => {
-    setCurrentIndex((prev) => (prev === 0 ? podcasts.length - 1 : prev - 1));
   };
 
   const handleNext = () => {
     setCurrentIndex((prev) => (prev === podcasts.length - 1 ? 0 : prev + 1));
   };
 
+  const handlePrevious = () => {
+    setCurrentIndex((prev) => (prev === 0 ? podcasts.length - 1 : prev - 1));
+  };
+
+  // Touch/Swipe handlers
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setDragStartX(e.touches[0].clientX);
+    setIsDragging(true);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!isDragging || dragStartX === null) return;
+    const currentX = e.touches[0].clientX;
+    setDragDelta(currentX - dragStartX);
+  };
+
+  const handleTouchEnd = () => {
+    if (!isDragging || dragStartX === null) return;
+    
+    if (Math.abs(dragDelta) > 50) {
+      if (dragDelta > 0) {
+        handlePrevious();
+      } else {
+        handleNext();
+      }
+    }
+    
+    setDragDelta(0);
+    setDragStartX(null);
+    setIsDragging(false);
+  };
+
+  // Mouse handlers for desktop
+  const handleMouseDown = (e: React.MouseEvent) => {
+    setDragStartX(e.clientX);
+    setIsDragging(true);
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging || dragStartX === null) return;
+    setDragDelta(e.clientX - dragStartX);
+  };
+
+  const handleMouseUp = () => {
+    if (!isDragging || dragStartX === null) return;
+    
+    if (Math.abs(dragDelta) > 50) {
+      if (dragDelta > 0) {
+        handlePrevious();
+      } else {
+        handleNext();
+      }
+    }
+    
+    setDragDelta(0);
+    setDragStartX(null);
+    setIsDragging(false);
+  };
+
   const currentPodcast = podcasts[currentIndex];
-  const styles = categoryStyles[currentPodcast.category];
 
   return (
-    <div className={`min-h-screen bg-gradient-to-b ${styles.bg} p-3 md:p-6 flex items-center justify-center overflow-hidden relative`}>
-      {/* Artistic background elements */}
-      <div className="absolute inset-0 opacity-20 pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-32 h-32 rounded-full border-2 border-white/30 rotate-45"></div>
-        <div className="absolute bottom-1/3 right-1/3 w-24 h-24 border-2 border-white/20 rotate-12"></div>
-      </div>
-
-      <div className="max-w-2xl w-full mx-auto space-y-4 md:space-y-6 relative z-10">
+    <div 
+      className="min-h-screen bg-white flex items-center justify-center overflow-hidden"
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+      onMouseDown={handleMouseDown}
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
+      onMouseLeave={handleMouseUp}
+    >
+      <div className="max-w-2xl w-full mx-auto px-4">
         
-        {/* Artistic Header */}
-        <div className="text-center space-y-2">
-          <div className="flex items-center justify-center gap-2">
-            <Podcast className="w-6 h-6 opacity-80" />
-            <h1 className="text-3xl md:text-4xl font-black tracking-tighter uppercase">
-              Drive Safe
-            </h1>
-          </div>
-          <p className={`${styles.text} opacity-70 text-xs md:text-sm tracking-widest uppercase`}>
-            Long Drives Made Better
+        {/* Header - Minimal */}
+        <div className="text-center mb-8">
+          <h1 className="text-2xl font-light tracking-[0.5em] uppercase text-gray-900">
+            Drive Safe
+          </h1>
+          <p className="text-xs tracking-[0.3em] uppercase text-gray-500 mt-1">
+            Swipe ← → to browse
           </p>
         </div>
 
-        {/* Category - Bold Banner */}
-        <div className={`text-center ${styles.accent} ${styles.accentText} py-3 rounded-lg font-black text-sm tracking-widest uppercase mx-4`}>
-          {currentPodcast.category}
-        </div>
-
-        {/* Podcast Card - Artistic Layout */}
-        <div className={`${styles.border} border-4 rounded-3xl p-6 md:p-8 min-h-[240px] flex flex-col justify-center bg-black/20 backdrop-blur-sm`}>
-          <div className={`${styles.text} text-xs font-bold tracking-[0.3em] uppercase mb-3 opacity-80`}>
-            Episode {currentIndex + 1}
+        {/* Main Card - Swipeable */}
+        <div 
+          className="relative"
+          style={{
+            transform: `translateX(${dragDelta}px)`,
+            transition: isDragging ? 'none' : 'transform 0.3s ease',
+            opacity: Math.max(0.3, 1 - Math.abs(dragDelta) / 300)
+          }}
+        >
+          {/* Category */}
+          <div className="text-center mb-4">
+            <span className="text-xs font-medium tracking-[0.2em] uppercase text-gray-400">
+              {currentPodcast.category}
+            </span>
           </div>
-          <h2 className={`${styles.text} text-2xl md:text-3xl font-black leading-tight mb-3`}>
-            {currentPodcast.title}
-          </h2>
-          <p className={`${styles.text} text-lg md:text-xl font-semibold leading-relaxed opacity-90`}>
-            {currentPodcast.description}
-          </p>
-          {currentPodcast.searchTerms && (
-            <div className="mt-3 text-xs opacity-60 font-mono">
-              {currentPodcast.searchTerms}
-            </div>
-          )}
-        </div>
 
-        {/* MASSIVE CIRCULAR PLAY BUTTON */}
-        <div className="flex justify-center py-4">
-          <button
-            onClick={handlePlay}
-            className={`
-              w-52 h-52 md:w-64 md:h-64 rounded-full 
-              ${styles.button} 
-              text-black
-              ${styles.glow}
-              transform transition-all duration-200
-              ${isPlaying ? 'scale-90 rotate-180' : 'hover:scale-105 active:scale-95'}
-              flex items-center justify-center
-              relative overflow-hidden
-              ring-8 ${styles.ring}
-              active:ring-12
-              touch-manipulation
-              shadow-2xl
-            `}
-            aria-label="Play podcast"
-          >
-            <div className="absolute inset-0 bg-white/30 active:bg-white/50 transition-opacity"></div>
-            <div className="relative flex flex-col items-center gap-4">
-              <Play className="w-24 h-24 md:w-32 md:h-32 fill-current" />
-              <span className="text-base md:text-lg font-black uppercase tracking-[0.5em]">PLAY</span>
-            </div>
-          </button>
-        </div>
-
-        {/* Navigation - Side by Side, Massive */}
-        <div className="grid grid-cols-2 gap-4 md:gap-6">
-          <Button
-            onClick={handlePrevious}
-            size="lg"
-            className={`
-              h-32 md:h-40 text-2xl md:text-3xl font-black 
-              bg-white/90 hover:bg-white 
-              text-black 
-              border-4 ${styles.border}
-              shadow-2xl hover:shadow-3xl
-              transition-all duration-150
-              active:scale-95
-              rounded-2xl
-              touch-manipulation
-            `}
-            aria-label="Previous podcast"
-          >
-            <ChevronLeft className="w-12 h-12 md:w-16 md:h-16 mr-2" />
-            LEFT
-          </Button>
-
-          <Button
-            onClick={handleNext}
-            size="lg"
-            className={`
-              h-32 md:h-40 text-2xl md:text-3xl font-black 
-              bg-white/90 hover:bg-white 
-              text-black 
-              border-4 ${styles.border}
-              shadow-2xl hover:shadow-3xl
-              transition-all duration-150
-              active:scale-95
-              rounded-2xl
-              touch-manipulation
-            `}
-            aria-label="Next podcast"
-          >
-            RIGHT
-            <ChevronRight className="w-12 h-12 md:w-16 md:h-16 ml-2" />
-          </Button>
-        </div>
-
-        {/* Minimal Footer */}
-        <div className="text-center">
-          <div className={`${styles.text} text-xs font-bold tracking-[0.4em] uppercase opacity-60`}>
-            {podcasts.length} • Available • Now
+          {/* Content */}
+          <div className="text-center space-y-4 mb-8">
+            <h2 className="text-3xl md:text-4xl font-light leading-tight text-gray-900">
+              {currentPodcast.title}
+            </h2>
+            <p className="text-lg md:text-xl font-light text-gray-600 leading-relaxed">
+              {currentPodcast.description}
+            </p>
+            {currentPodcast.searchTerms && (
+              <p className="text-xs font-mono text-gray-400">
+                {currentPodcast.searchTerms}
+              </p>
+            )}
           </div>
+
+          {/* Play Button - Massive */}
+          <div className="flex justify-center mb-8">
+            <button
+              onClick={handlePlay}
+              className={`
+                w-48 h-48 rounded-full 
+                bg-black text-white
+                hover:bg-gray-900
+                transform transition-all duration-200
+                ${isPlaying ? 'scale-90' : 'hover:scale-105 active:scale-95'}
+                flex items-center justify-center
+                shadow-xl
+              `}
+              aria-label="Play podcast"
+            >
+              <div className="flex flex-col items-center gap-2">
+                <Play className="w-16 h-16 fill-current" />
+                <span className="text-xs font-medium tracking-[0.3em]">PLAY</span>
+              </div>
+            </button>
+          </div>
+
+          {/* Counter */}
+          <div className="text-center text-xs text-gray-400 tracking-[0.2em]">
+            {currentIndex + 1} / {podcasts.length}
+          </div>
+        </div>
+
+        {/* Visual Swipe Hint */}
+        <div className="flex justify-between items-center mt-8 opacity-30">
+          <div className="text-gray-400 text-xs font-light">← PREV</div>
+          <div className="text-gray-400 text-xs font-light">NEXT →</div>
         </div>
       </div>
     </div>
