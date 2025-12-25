@@ -402,10 +402,10 @@ const Index = () => {
         });
       });
     } else {
-      // Initial load or reset, no specific swipe direction
+      // Initial load or reset, now using the same transition as swipes
       setCardTransform('translateX(0px)');
       setCardOpacity(1);
-      setCardTransition('transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)'); // Bouncy entrance
+      setCardTransition('transform 0.3s ease-out, opacity 0.3s ease-out'); // Unified transition
     }
 
     // Reset swipeDirection after the animation has been set up
