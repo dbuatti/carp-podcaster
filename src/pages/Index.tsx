@@ -234,14 +234,24 @@ const Index = () => {
   const [isDragging, setIsDragging] = useState(false);
   const [isSwipingOut, setIsSwipingOut] = useState(false);
   const [swipeDirection, setSwipeDirection] = useState<'left' | 'right' | null>(null);
+  const [showNewCard, setShowNewCard] = useState(false);
 
-  // Disable scroll on mount
+  // Load position from localStorage on mount
   useEffect(() => {
+    const savedIndex = localStorage.getItem('driveSafePodcastIndex');
+    if (savedIndex !== null) {
+      setCurrentIndex(parseInt(savedIndex, 10));
+    }
     document.body.style.overflow = 'hidden';
     return () => {
       document.body.style.overflow = 'auto';
     };
   }, []);
+
+  // Save position to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem('driveSafePodcastIndex', currentIndex.toString());
+  }, [currentIndex]);
 
   const handlePlay = () => {
     const podcast = podcasts[currentIndex];
@@ -255,6 +265,7 @@ const Index = () => {
   const swipeOffScreen = (direction: 'left' | 'right') => {
     setIsSwipingOut(true);
     setSwipeDirection(direction);
+    setShowNewCard(false);
     
     // Card flies off screen
     const offScreenX = direction === 'right' ? window.innerWidth : -window.innerWidth;
@@ -269,10 +280,16 @@ const Index = () => {
         // Swipe RIGHT = backward through numbering
         setCurrentIndex((prev) => (prev === 0 ? podcasts.length - 1 : prev - 1));
       }
-      // Reset
+      // Reset and trigger zoom
       setDragDelta(0);
       setIsSwipingOut(false);
       setSwipeDirection(null);
+      setShowNewCard(true);
+      
+      // Hide zoom after animation
+      setTimeout(() => {
+        setShowNewCard(false);
+      }, 300);
     }, 300);
   };
 
