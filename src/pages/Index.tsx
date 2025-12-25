@@ -20,36 +20,41 @@ interface CategoryStyle {
   accent: string;
   button: string;
   buttonHover: string;
+  glow: string;
 }
 
 const categoryStyles: Record<string, CategoryStyle> = {
   "🧘 Voice, Body & Somatics": {
-    bg: "from-emerald-50 to-teal-50",
+    bg: "from-emerald-50 via-teal-50 to-emerald-100",
     text: "text-emerald-800",
     accent: "bg-emerald-100 text-emerald-800",
     button: "bg-emerald-600",
-    buttonHover: "bg-emerald-700"
+    buttonHover: "bg-emerald-700",
+    glow: "shadow-[0_0_40px_rgba(16,185,129,0.3)]"
   },
   "☸️ Consciousness & Meaning-Making": {
-    bg: "from-purple-50 to-pink-50",
+    bg: "from-purple-50 via-pink-50 to-purple-100",
     text: "text-purple-800",
     accent: "bg-purple-100 text-purple-800",
     button: "bg-purple-600",
-    buttonHover: "bg-purple-700"
+    buttonHover: "bg-purple-700",
+    glow: "shadow-[0_0_40px_rgba(168,85,247,0.3)]"
   },
   "🎨 Creative Process & Artistic Identity": {
-    bg: "from-orange-50 to-amber-50",
+    bg: "from-orange-50 via-amber-50 to-orange-100",
     text: "text-orange-800",
     accent: "bg-orange-100 text-orange-800",
     button: "bg-orange-600",
-    buttonHover: "bg-orange-700"
+    buttonHover: "bg-orange-700",
+    glow: "shadow-[0_0_40px_rgba(249,115,22,0.3)]"
   },
   "⚖️ Systems, Ethics & Thinking Clearly": {
-    bg: "from-blue-50 to-cyan-50",
+    bg: "from-blue-50 via-cyan-50 to-blue-100",
     text: "text-blue-800",
     accent: "bg-blue-100 text-blue-800",
     button: "bg-blue-600",
-    buttonHover: "bg-blue-700"
+    buttonHover: "bg-blue-700",
+    glow: "shadow-[0_0_40px_rgba(59,130,246,0.3)]"
   }
 };
 
@@ -292,32 +297,32 @@ const Index = () => {
   const styles = categoryStyles[currentPodcast.category];
 
   return (
-    <div className={`min-h-screen bg-gradient-to-br ${styles.bg} p-4 flex items-center justify-center`}>
-      <div className="max-w-3xl w-full mx-auto space-y-6">
+    <div className={`min-h-screen bg-gradient-to-br ${styles.bg} p-4 md:p-8 flex items-center justify-center`}>
+      <div className="max-w-3xl w-full mx-auto space-y-8">
         
         {/* Header */}
-        <div className="text-center space-y-2">
-          <h1 className="text-3xl font-bold text-gray-900 tracking-tight">
+        <div className="text-center space-y-3">
+          <h1 className="text-4xl md:text-5xl font-black text-gray-900 tracking-tight drop-shadow-sm">
             Drive Safe Podcasts
           </h1>
-          <p className="text-gray-600 text-sm">
+          <p className="text-gray-700 text-base md:text-lg font-medium">
             Long drives made better
           </p>
         </div>
 
         {/* Category Badge */}
         <div className="text-center">
-          <span className={`inline-block px-5 py-2.5 rounded-full text-sm font-semibold ${styles.accent}`}>
+          <span className={`inline-block px-6 py-3 rounded-full text-sm font-bold ${styles.accent} shadow-md`}>
             {currentPodcast.category}
           </span>
         </div>
 
         {/* Podcast Card */}
-        <div className="bg-white rounded-3xl shadow-xl p-8 min-h-[320px] flex flex-col justify-center border border-gray-100">
-          <h2 className="text-3xl font-bold text-gray-900 mb-4 leading-tight">
+        <div className="bg-white/95 backdrop-blur-sm rounded-3xl shadow-2xl p-8 md:p-10 min-h-[320px] flex flex-col justify-center border border-white/50">
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4 leading-tight">
             {currentPodcast.title}
           </h2>
-          <p className="text-gray-700 text-xl mb-3 leading-relaxed">
+          <p className="text-gray-700 text-xl md:text-2xl mb-4 leading-relaxed font-medium">
             {currentPodcast.description}
           </p>
           {currentPodcast.searchTerms && (
@@ -325,56 +330,62 @@ const Index = () => {
               Search: "{currentPodcast.searchTerms}"
             </p>
           )}
-          <div className={`text-sm mt-6 ${styles.text} opacity-70`}>
+          <div className={`text-sm mt-6 font-semibold ${styles.text} opacity-80`}>
             {currentIndex + 1} of {podcasts.length}
           </div>
         </div>
 
         {/* Circular Play Button */}
-        <div className="flex justify-center py-4">
+        <div className="flex justify-center py-6">
           <button
             onClick={handlePlay}
-            className={`w-32 h-32 rounded-full ${styles.button} hover:${styles.buttonHover} text-white shadow-2xl transform hover:scale-105 transition-all duration-200 flex items-center justify-center group`}
+            className={`w-36 h-36 rounded-full ${styles.button} hover:${styles.buttonHover} text-white ${styles.glow} transform hover:scale-105 transition-all duration-300 flex items-center justify-center group relative overflow-hidden`}
             aria-label="Play podcast"
           >
-            <div className="flex flex-col items-center gap-1">
-              <Play className="w-12 h-12 fill-current group-hover:scale-110 transition-transform" />
-              <span className="text-xs font-bold uppercase tracking-wider">Play</span>
+            <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <div className="relative flex flex-col items-center gap-2">
+              <Play className="w-14 h-14 fill-current group-hover:scale-110 transition-transform duration-300" />
+              <span className="text-xs font-black uppercase tracking-widest">PLAY</span>
             </div>
           </button>
         </div>
 
         {/* Navigation Buttons */}
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-5">
           <Button
             onClick={handlePrevious}
             size="lg"
-            className="h-16 text-lg font-bold bg-white hover:bg-gray-100 text-gray-800 border-2 border-gray-200 shadow-md"
+            className="h-20 text-xl font-black bg-white hover:bg-gray-50 text-gray-800 border-4 border-gray-200 shadow-lg hover:shadow-xl transition-all duration-200"
             aria-label="Previous podcast"
           >
-            <ChevronLeft className="w-8 h-8 mr-2" />
+            <ChevronLeft className="w-10 h-10 mr-2" />
             LEFT
           </Button>
 
           <Button
             onClick={handleNext}
             size="lg"
-            className="h-16 text-lg font-bold bg-white hover:bg-gray-100 text-gray-800 border-2 border-gray-200 shadow-md"
+            className="h-20 text-xl font-black bg-white hover:bg-gray-50 text-gray-800 border-4 border-gray-200 shadow-lg hover:shadow-xl transition-all duration-200"
             aria-label="Next podcast"
           >
             RIGHT
-            <ChevronRight className="w-8 h-8 ml-2" />
+            <ChevronRight className="w-10 h-10 ml-2" />
           </Button>
         </div>
 
         {/* Quick Tips */}
-        <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-4 text-sm text-gray-700 border border-gray-200">
-          <p className="font-semibold mb-2 text-gray-900">💡 Quick Tips:</p>
-          <ul className="list-disc list-inside space-y-1 text-xs">
+        <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-5 text-sm text-gray-800 border border-white/60 shadow-lg">
+          <p className="font-bold mb-2 text-gray-900 text-base">💡 Quick Tips:</p>
+          <ul className="list-disc list-inside space-y-1.5 text-xs md:text-sm font-medium">
             <li>Press the big circle to open in Apple Podcasts</li>
             <li>Use LEFT/RIGHT buttons to browse while parked</li>
             <li>Colors match podcast categories for easy scanning</li>
           </ul>
+        </div>
+
+        {/* Counter */}
+        <div className="text-center text-gray-600 text-xs font-semibold opacity-60">
+          {podcasts.length} podcasts available
         </div>
       </div>
     </div>
