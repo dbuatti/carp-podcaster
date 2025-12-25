@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { Play, RotateCcw } from 'lucide-react';
+import { Play, RotateCcw, Check } from 'lucide-react'; // Import Check icon
 
 interface PodcastType {
   id: number;
@@ -233,15 +233,18 @@ const Index = () => {
   const [dragDelta, setDragDelta] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [isSwipingOut, setIsSwipingOut] = useState(false);
-  // 'next' means the new card comes from the right (swiped left)
-  // 'prev' means the new card comes from the left (swiped right)
   const [swipeDirection, setSwipeDirection] = useState<'next' | 'prev' | null>(null); 
+  const [tickedPodcasts, setTickedPodcasts] = useState<Set<number>>(new Set());
 
-  // Load current index from localStorage
+  // Load current index and ticked podcasts from localStorage
   useEffect(() => {
     const savedIndex = localStorage.getItem('driveSafePodcastIndex');
     if (savedIndex !== null) {
       setCurrentIndex(parseInt(savedIndex, 10));
+    }
+    const savedTicked = localStorage.getItem('driveSafeTickedPodcasts');
+    if (savedTicked) {
+      setTickedPodcasts(new Set(JSON.parse(savedTicked)));
     }
     document.body.style.overflow = 'hidden';
     return () => {
@@ -253,6 +256,11 @@ const Index = () => {
   useEffect(() => {
     localStorage.setItem('driveSafePodcastIndex', currentIndex.toString());
   }, [currentIndex]);
+
+  // Save ticked podcasts whenever the set changes
+  useEffect(() => {
+    localStorage.setItem('driveSafeTickedPodcasts', JSON.stringify(Array.from(tickedPodcasts)));
+  }, [tickedPodcasts]);
 
   const handlePlay = () => {
     const podcast = podcasts[currentIndex];
@@ -266,16 +274,27 @@ const Index = () => {
   const handleReset = () => {
     if (confirm('Reset your ticked progress? This will clear your history and start fresh from the first podcast.')) {
       localStorage.removeItem('driveSafePodcastIndex');
+      localStorage.removeItem('driveSafeTickedPodcasts');
       setCurrentIndex(0);
+      setTickedPodcasts(new Set());
     }
   };
 
   const swipeOffScreen = (direction: 'left' | 'right') => {
     setIsSwipingOut(true);
-    setSwipeDirection(direction === 'left' ? 'next' : 'prev'); // Set direction for the *incoming* card
+    setSwipeDirection(direction === 'left' ? 'next' : 'prev');
 
     const offScreenX = direction === 'right' ? window.innerWidth : -window.innerWidth;
-    setDragDelta(offScreenX); // This pushes the *current* card off-screen
+    setDragDelta(offScreenX);
+
+    // If swiping left, mark the *outgoing* card as ticked
+    if (direction === 'left') {
+      setTickedPodcasts(prev => {
+        const newTicked = new Set(prev);
+        newTicked.add(currentPodcast.id);
+        return newTicked;
+      });
+    }
 
     setTimeout(() => {
       if (direction === 'left') {
@@ -283,9 +302,8 @@ const Index = () => {
       } else {
         setCurrentIndex((prev) => (prev === 0 ? podcasts.length - 1 : prev - 1));
       }
-      setDragDelta(0); // Reset dragDelta for the new card
-      setIsSwipingOut(false); // The old card is gone
-      // swipeDirection will be used by the new card's useEffect
+      setDragDelta(0);
+      setIsSwipingOut(false);
     }, 300); // Match CSS transition duration
   };
 
@@ -334,6 +352,19 @@ const Index = () => {
   };
 
   const currentPodcast = podcasts[currentIndex];
+  const isCurrentPodcastTicked = tickedPodcasts.has(currentPodcast.id);
+
+  const handleToggleTick = () => {
+    setTickedPodcasts(prev => {
+      const newTicked = new Set(prev);
+      if (newTicked.has(currentPodcast.id)) {
+        newTicked.delete(currentPodcast.id);
+      } else {
+        newTicked.add(currentPodcast.id);
+      }
+      return newTicked;
+    });
+  };
 
   // Visual calculations for the OUTGOING card
   const rotation = dragDelta * 0.05;
@@ -467,18 +498,24 @@ const Index = () => {
 
           <div className="flex justify-center my-8">
             <button
-              onClick={handlePlay}
+              onClick={isCurrentPodcastTicked ? handleToggleTick : handlePlay}
               className={`
-                w-48 h-48 rounded-full bg-black text-white
-                hover:bg-gray-900 transform transition-all duration-200
+                w-48 h-48 rounded-full ${isCurrentPodcastTicked ? 'bg-green-500' : 'bg-black'} text-white
+                hover:${isCurrentPodcastTicked ? 'bg-green-600' : 'bg-gray-900'} transform transition-all duration-200
                 ${isPlaying ? 'scale-90' : 'hover:scale-105 active:scale-95'}
                 flex items-center justify-center shadow-xl
               `}
-              aria-label="Play podcast"
+              aria-label={isCurrentPodcastTicked ? "Untick podcast" : "Play podcast"}
             >
               <div className="flex flex-col items-center gap-2">
-                <Play className="w-16 h-16 fill-current" />
-                <span className="text-xs font-medium tracking-[0.3em]">PLAY</span>
+                {isCurrentPodcastTicked ? (
+                  <Check className="w-16 h-16 fill-current" />
+                ) : (
+                  <Play className="w-16 h-16 fill-current" />
+                )}
+                <span className="text-xs font-medium tracking-[0.3em]">
+                  {isCurrentPodcastTicked ? 'TICKED' : 'PLAY'}
+                </span>
               </div>
             </button>
           </div>
