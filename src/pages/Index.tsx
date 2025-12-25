@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { Play } from 'lucide-react';
+import { Play, RotateCcw } from 'lucide-react';
 
 interface PodcastType {
   id: number;
@@ -262,6 +262,16 @@ const Index = () => {
     }
   };
 
+  const handleReset = () => {
+    if (confirm('Reset your progress? This will start you at podcast #1.')) {
+      localStorage.removeItem('driveSafePodcastIndex');
+      setCurrentIndex(0);
+      // Trigger zoom animation for reset
+      setShowNewCard(true);
+      setTimeout(() => setShowNewCard(false), 300);
+    }
+  };
+
   const swipeOffScreen = (direction: 'left' | 'right') => {
     setIsSwipingOut(true);
     setSwipeDirection(direction);
@@ -405,6 +415,15 @@ const Index = () => {
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseUp}
     >
+      {/* Reset Button - Top Left */}
+      <button
+        onClick={handleReset}
+        className="absolute top-4 left-4 z-20 p-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+        aria-label="Reset progress"
+      >
+        <RotateCcw className="w-5 h-5 text-gray-700" />
+      </button>
+
       {/* Background swipe indicators */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute left-8 top-1/2 -translate-y-1/2 text-6xl font-black opacity-0 transition-opacity duration-200"
