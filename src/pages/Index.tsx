@@ -299,8 +299,13 @@ const Index = () => {
     if (!isDragging || dragStartX === null || isSwipingOut) return;
     
     if (Math.abs(dragDelta) > 100) {
-      // Trigger swipe off screen
-      swipeOffScreen(dragDelta > 0 ? 'right' : 'left');
+      // Swipe LEFT = forward (next)
+      // Swipe RIGHT = back (previous)
+      if (dragDelta < 0) {
+        handleNext();
+      } else {
+        handlePrevious();
+      }
     } else {
       // Snap back
       setDragDelta(0);
@@ -326,7 +331,13 @@ const Index = () => {
     if (!isDragging || dragStartX === null || isSwipingOut) return;
     
     if (Math.abs(dragDelta) > 100) {
-      swipeOffScreen(dragDelta > 0 ? 'right' : 'left');
+      // Swipe LEFT = forward (next)
+      // Swipe RIGHT = back (previous)
+      if (dragDelta < 0) {
+        handleNext();
+      } else {
+        handlePrevious();
+      }
     } else {
       setDragDelta(0);
     }
@@ -337,21 +348,20 @@ const Index = () => {
 
   const currentPodcast = podcasts[currentIndex];
 
-  // Calculate rotation and opacity based on drag
+  // Calculate rotation based on drag
   const rotation = dragDelta * 0.05;
-  const opacity = Math.max(0, 1 - Math.abs(dragDelta) / 300);
   const scale = Math.max(0.8, 1 - Math.abs(dragDelta) / 500);
 
-  // Subtle color based on swipe direction
-  const getCardColor = () => {
+  // Border color based on swipe direction
+  const getBorderColor = () => {
     if (dragDelta > 50) {
-      // Swiping right (previous) - subtle green tint
-      return `rgba(16, 185, 129, ${Math.min(0.15, dragDelta / 500)})`;
+      // Swiping right (previous/back) - green border
+      return 'rgba(16, 185, 129, 0.8)';
     } else if (dragDelta < -50) {
-      // Swiping left (next) - subtle red tint
-      return `rgba(239, 68, 68, ${Math.min(0.15, Math.abs(dragDelta) / 500)})`;
+      // Swiping left (next/forward) - red border
+      return 'rgba(239, 68, 68, 0.8)';
     }
-    return 'transparent';
+    return 'rgba(0, 0, 0, 0.1)';
   };
 
   return (
@@ -365,21 +375,21 @@ const Index = () => {
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseUp}
     >
-      {/* Background swipe indicators with subtle color */}
+      {/* Background swipe indicators */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute left-8 top-1/2 -translate-y-1/2 text-6xl font-black opacity-0 transition-opacity duration-200"
              style={{ 
                opacity: dragDelta > 50 ? Math.min(0.4, dragDelta / 300) : 0,
                color: 'rgba(16, 185, 129, 0.8)'
              }}>
-          ←
+          ← BACK
         </div>
         <div className="absolute right-8 top-1/2 -translate-y-1/2 text-6xl font-black opacity-0 transition-opacity duration-200"
              style={{ 
                opacity: dragDelta < -50 ? Math.min(0.4, Math.abs(dragDelta) / 300) : 0,
                color: 'rgba(239, 68, 68, 0.8)'
              }}>
-          →
+          NEXT →
         </div>
       </div>
 
@@ -395,21 +405,16 @@ const Index = () => {
           </p>
         </div>
 
-        {/* Main Card - Tinder Style with subtle color */}
+        {/* Main Card - Tinder Style with border */}
         <div 
-          className="relative rounded-2xl"
+          className="relative rounded-2xl border-4 transition-colors duration-75"
           style={{
+            borderColor: getBorderColor(),
             transform: `translateX(${dragDelta}px) rotate(${rotation}deg) scale(${scale})`,
             transition: isSwipingOut ? 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)' : (isDragging ? 'none' : 'transform 0.3s ease'),
-            opacity: opacity
+            opacity: 1 // No fade
           }}
         >
-          {/* Subtle color overlay */}
-          <div 
-            className="absolute inset-0 rounded-2xl pointer-events-none transition-colors duration-75"
-            style={{ backgroundColor: getCardColor() }}
-          ></div>
-
           {/* Category */}
           <div className="text-center mb-4 relative z-10">
             <span className="text-xs font-medium tracking-[0.2em] uppercase text-gray-400">
@@ -462,7 +467,7 @@ const Index = () => {
 
         {/* Visual Swipe Hint */}
         <div className="flex justify-between items-center mt-8 opacity-30">
-          <div className="text-gray-400 text-xs font-light">← PREV</div>
+          <div className="text-gray-400 text-xs font-light">← BACK</div>
           <div className="text-gray-400 text-xs font-light">NEXT →</div>
         </div>
       </div>
